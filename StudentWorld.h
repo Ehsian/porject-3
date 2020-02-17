@@ -2,6 +2,8 @@
 #define STUDENTWORLD_H_
 
 #include "GameWorld.h"
+#include "Actor.h"
+#include <list>
 #include <string>
 
 // Students:  Add code to this file, StudentWorld.cpp, Actor.h, and Actor.cpp
@@ -15,6 +17,8 @@ public:
     virtual void cleanUp();
 
 private:
+	std::list<Actor*> actList;
+	Socrates* player;
 };
 
 #endif // STUDENTWORLD_H_
