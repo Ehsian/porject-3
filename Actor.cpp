@@ -3,7 +3,7 @@
 
 using namespace std;
 
-Actor::Actor(int imageID, double startX, double startY, int dir, double size, int depth, StudentWorld* sWorld)
+Actor::Actor(int imageID, double startX, double startY, Direction dir, double size, int depth, StudentWorld* sWorld)
 	:GraphObject(imageID, startX, startY, dir, size, depth)
 {
 	isAlive = true;
@@ -18,17 +18,29 @@ Actor::~Actor()
 
 }
 
-Socrates::Socrates(int imageID, double startX, double startY, int dir, double size, int depth, StudentWorld* sWorld)
-	:Actor(imageID, startX, startY, dir, size, depth, sWorld)
+Socrates::Socrates(StudentWorld* sWorld)
+	:Actor(IID_PLAYER, 0, 128, 0, 1.0, 1, sWorld)
 {
-	
+
 }
 void Socrates::doSomething()
 {
 	int key;
 	if (getWorld()->getKey(key))
 	{
-
+		if (key == KEY_PRESS_LEFT)
+		{
+			int direction = getDirection();
+			setDirection(getDirection() - 5);
+			moveAngle(getDirection() + 90,11);
+			
+			
+		}
+		if (key == KEY_PRESS_RIGHT)
+		{
+			moveAngle_2(getDirection()+185);
+			setDirection(getDirection()+5);	
+		}
 	}
 	return;
 }
@@ -37,12 +49,12 @@ Socrates::~Socrates()
 
 }
 
-dirtPile::dirtPile(int imageID, double startX, double startY, int dir, double size, int depth, StudentWorld* sWorld)
-	:Actor(imageID, startX, startY, dir, size, depth, sWorld)
+dirtPile::dirtPile(double startX, double startY, StudentWorld* sWorld)
+	:Actor(IID_DIRT, startX, startY, 0, 1.0, 1, sWorld)
 {
 
 }
-void dirtPile :: doSomething()
+void dirtPile::doSomething()
 {
 	return;
 }
