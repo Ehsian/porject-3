@@ -16,7 +16,7 @@ StudentWorld::StudentWorld(string assetPath)
 {
 }
 
-void StudentWorld::randomSpawn(double &x, double &y) 
+void StudentWorld::randomSpawn(double& x, double& y)
 {
 	const double PI = 4 * atan(1);
 	int distance = randInt(0, 120);
@@ -27,6 +27,19 @@ void StudentWorld::randomSpawn(double &x, double &y)
 int StudentWorld::init()
 {
 	player = new Socrates(this);
+	for (int i = 0; i < getLevel(); i++)
+	{
+		double randX, randY;
+		randomSpawn(randX, randY);
+		Pit* newPit = new Pit(randX, randY, this);
+		while (hasOverlap(newPit))
+		{
+			double x, y;
+			randomSpawn(x, y);
+			newPit->moveTo(x, y);
+		}
+		actList.push_back(newPit);
+	}
 	for (int i = 0; i < min(5 * getLevel(), 25); i++)
 	{
 		double randX, randY;
@@ -45,7 +58,7 @@ int StudentWorld::init()
 		double randX, randY;
 		randomSpawn(randX, randY);
 		dirtPile* newdirtPile = new dirtPile(randX, randY, this);
-		while (hasOverlap(newdirtPile) && findOverlap(newdirtPile)->isFood())
+		while (hasOverlap(newdirtPile) && (findOverlap(newdirtPile)->isFood() || findOverlap(newdirtPile)->isPit()))
 		{
 			double x, y;
 			randomSpawn(x, y);
@@ -53,7 +66,7 @@ int StudentWorld::init()
 		}
 		actList.push_back(newdirtPile);
 	}
-	
+
 	setGameStatText("Score: " + to_string(getScore()) + " Level: " + to_string(getLevel()) + " Lives: " + to_string(getLives()));
 	return GWSTATUS_CONTINUE_GAME;
 }

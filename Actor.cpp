@@ -7,7 +7,7 @@ using namespace std;
 Actor::Actor(int imageID, double startX, double startY, Direction dir, double size, int depth, StudentWorld* sWorld)
 	:GraphObject(imageID, startX, startY, dir, size, depth)
 {
-	isAlive = true;
+	m_alive = true;
 	m_sWorld = sWorld;
 }
 StudentWorld* Actor::getWorld()
@@ -34,6 +34,7 @@ void Socrates::doSomething()
 			moveAngle(getDirection(), 128);
 			setDirection(getDirection() + 5);
 			moveAngle(getDirection(), -128);
+			cout << getDirection() << endl;
 		}
 		if (key == KEY_PRESS_RIGHT)
 		{
@@ -77,6 +78,19 @@ void Food::doSomething()
 	return;
 }
 Food::~Food()
+{
+
+}
+Pit::Pit(double startX, double startY, StudentWorld* sWorld)
+	:Actor(IID_PIT, startX, startY, 0, 1.0, 1, sWorld)
+{
+
+}
+void Pit::doSomething()
+{
+	return;
+}
+Pit::~Pit()
 {
 
 }

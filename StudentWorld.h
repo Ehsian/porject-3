@@ -15,7 +15,7 @@ public:
 	virtual int init();
 	virtual int move();
 	virtual void cleanUp();
-	void randomSpawn(double &x,double &y);
+	void randomSpawn(double& x, double& y);
 	bool overlap(Actor* a1, Actor* a2);
 	bool hasOverlap(Actor* a);
 	Actor* findOverlap(Actor* a);
