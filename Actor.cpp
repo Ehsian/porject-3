@@ -1,5 +1,6 @@
 #include "Actor.h"
 #include "StudentWorld.h"
+#include <iostream>
 
 using namespace std;
 
@@ -30,16 +31,20 @@ void Socrates::doSomething()
 	{
 		if (key == KEY_PRESS_LEFT)
 		{
-			int direction = getDirection();
-			setDirection(getDirection() - 5);
-			moveAngle(getDirection() + 90,11);
-			
-			
+			moveAngle(getDirection(), 128);
+			setDirection(getDirection() + 5);
+			moveAngle(getDirection(), -128);
 		}
 		if (key == KEY_PRESS_RIGHT)
 		{
-			moveAngle_2(getDirection()+185);
-			setDirection(getDirection()+5);	
+			moveAngle(getDirection(), 128);
+			setDirection(getDirection() - 5);
+			moveAngle(getDirection(), -128);
+			/*double x, y;
+			moveAngle_2(getDirection() - 185, x, y);
+			moveTo(x + 128, y + 128);
+			setDirection(getDirection() - 5); //87.5
+			*/
 		}
 	}
 	return;
@@ -59,6 +64,19 @@ void dirtPile::doSomething()
 	return;
 }
 dirtPile::~dirtPile()
+{
+
+}
+Food::Food(double startX, double startY, StudentWorld* sWorld)
+	:Actor(IID_FOOD, startX, startY, 90, 1.0, 1, sWorld)
+{
+
+}
+void Food::doSomething()
+{
+	return;
+}
+Food::~Food()
 {
 
 }

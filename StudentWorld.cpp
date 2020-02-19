@@ -16,21 +16,44 @@ StudentWorld::StudentWorld(string assetPath)
 {
 }
 
+void StudentWorld::randomSpawn(double &x, double &y) 
+{
+	const double PI = 4 * atan(1);
+	int distance = randInt(0, 120);
+	double angle = randInt(0, 360) * PI / 180;
+	x = distance * cos(angle) + VIEW_RADIUS;
+	y = distance * sin(angle) + VIEW_RADIUS;
+}
 int StudentWorld::init()
 {
 	player = new Socrates(this);
+	for (int i = 0; i < min(5 * getLevel(), 25); i++)
+	{
+		double randX, randY;
+		randomSpawn(randX, randY);
+		Food* newFood = new Food(randX, randY, this);
+		while (hasOverlap(newFood))
+		{
+			double x, y;
+			randomSpawn(x, y);
+			newFood->moveTo(x, y);
+		}
+		actList.push_back(newFood);
+	}
 	for (int i = 0; i < max(180 - 20 * getLevel(), 20); i++)
 	{
-		/*int randX = randInt(0, VIEW_WIDTH);
-		int randY = randInt(0, VIEW_HEIGHT);*/
-		const double PI = 4 * atan(1);
-		int distance = randInt(0, 120);
-		double angle = randInt(0, 360)*PI/180;
-		double randX = distance * cos(angle) + VIEW_RADIUS;
-		double randY = distance * sin(angle) + VIEW_RADIUS;
+		double randX, randY;
+		randomSpawn(randX, randY);
 		dirtPile* newdirtPile = new dirtPile(randX, randY, this);
+		while (hasOverlap(newdirtPile) && findOverlap(newdirtPile)->isFood())
+		{
+			double x, y;
+			randomSpawn(x, y);
+			newdirtPile->moveTo(x, y);
+		}
 		actList.push_back(newdirtPile);
 	}
+	
 	setGameStatText("Score: " + to_string(getScore()) + " Level: " + to_string(getLevel()) + " Lives: " + to_string(getLives()));
 	return GWSTATUS_CONTINUE_GAME;
 }
@@ -60,6 +83,41 @@ void StudentWorld::cleanUp()
 	}
 	actList.clear();
 }
+
+bool StudentWorld::overlap(Actor* a1, Actor* a2)
+{
+	// Euclidean distance
+	double distance = sqrt((a1->getX() - a2->getX()) * (a1->getX() - a2->getX()) +
+		(a1->getY() - a2->getY()) * (a1->getY() - a2->getY()));
+	if (distance < 8)
+	{
+		return true;
+	}
+	return false;
+}
+
+bool StudentWorld::hasOverlap(Actor* a)
+{
+	list<Actor*>::iterator it;
+	for (it = actList.begin(); it != actList.end(); it++)
+	{
+		if (a != *it && overlap(a, *it))
+			return true;
+	}
+	return false;
+}
+
+Actor* StudentWorld::findOverlap(Actor* a)
+{
+	list<Actor*>::iterator it;
+	for (it = actList.begin(); it != actList.end(); it++)
+	{
+		if (a != *it && overlap(a, *it))
+			return *it;
+	}
+	return nullptr;
+}
+
 
 StudentWorld::~StudentWorld()
 {
