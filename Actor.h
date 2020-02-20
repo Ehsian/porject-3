@@ -13,11 +13,7 @@ public:
 	StudentWorld* getWorld();
 	bool isAlive() { return m_alive; };
 	virtual void doSomething() = 0;
-	virtual bool isPlayer() { return false; };
-	virtual bool isGoodie() { return false; };
-	virtual bool isProj() { return false; };
-	virtual bool isFood() { return false; };
-	virtual bool isPit() { return false; };
+	virtual bool blocksDirt() { return false; };
 	void die() { m_alive = false; };
 	virtual ~Actor();
 private:
@@ -52,7 +48,7 @@ class Food :public Actor
 public:
 	Food(double startX, double startY, StudentWorld* sWorld);
 	virtual void doSomething();
-	virtual bool isFood() { return true; };
+	virtual bool blocksDirt() { return true; };
 	virtual ~Food();
 };
 
@@ -61,9 +57,8 @@ class Pit : public Actor
 public:
 	Pit(double startX, double startY, StudentWorld* sWorld);
 	virtual void doSomething();
-	virtual bool isPit() { return true; };
+	virtual bool blocksDirt() { return true; };
 	virtual ~Pit();
-
 };
 // Students:  Add code to this file, Actor.cpp, StudentWorld.h, and StudentWorld.cpp
 

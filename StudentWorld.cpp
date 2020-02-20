@@ -58,7 +58,7 @@ int StudentWorld::init()
 		double randX, randY;
 		randomSpawn(randX, randY);
 		dirtPile* newdirtPile = new dirtPile(randX, randY, this);
-		while (hasOverlap(newdirtPile) && (findOverlap(newdirtPile)->isFood() || findOverlap(newdirtPile)->isPit()))
+		while (hasOverlap(newdirtPile) && (findOverlap(newdirtPile)->blocksDirt()))
 		{
 			double x, y;
 			randomSpawn(x, y);
