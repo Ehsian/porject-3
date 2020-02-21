@@ -16,7 +16,6 @@ public:
 	virtual bool blocksDirt() { return false; };
 	void die() { m_alive = false; };
 	virtual bool hasHP() { return false; };
-	virtual ~Actor();
 private:
 	bool m_alive;
 	StudentWorld* m_sWorld;
@@ -68,7 +67,8 @@ public:
 		x = (VIEW_RADIUS * cos(angle * 1.0 / 360 * 2 * PI));
 		y = (VIEW_RADIUS * sin(angle * 1.0 / 360 * 2 * PI));
 	}*/
-	virtual ~Socrates();
+private:
+	int m_spray = 20;
 };
 
 class dirtPile :public DamageableObject
@@ -76,7 +76,6 @@ class dirtPile :public DamageableObject
 public:
 	dirtPile(double startX, double startY, StudentWorld* sWorld);
 	virtual void doSomething();
-	virtual ~dirtPile();
 };
 
 class Food :public Actor
@@ -85,7 +84,6 @@ public:
 	Food(double startX, double startY, StudentWorld* sWorld);
 	virtual void doSomething();
 	virtual bool blocksDirt() { return true; };
-	virtual ~Food();
 };
 
 class Pit : public Actor
@@ -93,8 +91,7 @@ class Pit : public Actor
 public:
 	Pit(double startX, double startY, StudentWorld* sWorld);
 	virtual void doSomething();
-	virtual bool blocksDirt() { return true; };
-	virtual ~Pit();
+	virtual bool blocksDirt() { return true; }
 };
 // Students:  Add code to this file, Actor.cpp, StudentWorld.h, and StudentWorld.cpp
 

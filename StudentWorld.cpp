@@ -141,7 +141,7 @@ Actor* StudentWorld::findOverlap(Actor* a)
 
 void StudentWorld::addActor(Actor* a)
 {
-	actList.push_front(a);
+	actList.push_back(a);
 }
 
 

@@ -13,11 +13,6 @@ StudentWorld* Actor::getWorld()
 	return m_sWorld;
 }
 
-Actor::~Actor()
-{
-
-}
-
 DamageableObject::DamageableObject(int imageID, double startX, double startY, Direction dir, double size, int depth, StudentWorld* sWorld, double health)
 	:Actor(imageID, startX, startY, dir, size, depth,sWorld), m_health(health)
 {}
@@ -55,7 +50,7 @@ void Projectile::doSomething()
 }
 
 Spray::Spray(double startX, double startY, Direction dir, StudentWorld* sWorld)
-	:Projectile(IID_SPRAY, startX, startY, dir, 1.0, 1, sWorld, 2, SPRITE_WIDTH, 0, 256)
+	:Projectile(IID_SPRAY, startX, startY, dir, 1.0, 1, sWorld, 2, SPRITE_WIDTH, 0, 112)
 {}
 
 Socrates::Socrates(StudentWorld* sWorld)
@@ -66,9 +61,41 @@ Socrates::Socrates(StudentWorld* sWorld)
 void Socrates::doSomething()
 {
 	int key;
+	
 	if (getWorld()->getKey(key))
 	{
-		if (key == KEY_PRESS_LEFT)
+		switch (key)
+		{
+		case KEY_PRESS_LEFT:
+			moveAngle(getDirection(), 128);
+			setDirection(getDirection() + 5);
+			moveAngle(getDirection(), -128);
+			break;
+		case KEY_PRESS_RIGHT:
+			moveAngle(getDirection(), 128);
+			setDirection(getDirection() - 5);
+			moveAngle(getDirection(), -128);
+			break;
+		case KEY_PRESS_SPACE:
+			if (m_spray > 0)
+			{
+				m_spray--;
+				double x, y;
+				getPositionInThisDirection(getDirection(), 2, x, y);
+				getWorld()->addActor(new Spray(x, y, getDirection(), getWorld()));
+			}
+			break;
+		case KEY_PRESS_ENTER:
+			for (int i = 0; i < 16; i++)
+			{
+				double x, y;
+				getPositionInThisDirection(getDirection(), 2, x, y);
+				getWorld()->addActor(new Spray(x, y, getDirection()+22*i, getWorld()));
+			}
+		default: break;
+		}
+
+		/*if (key == KEY_PRESS_LEFT)
 		{
 			moveAngle(getDirection(), 128);
 			setDirection(getDirection() + 5);
@@ -83,18 +110,21 @@ void Socrates::doSomething()
 			moveAngle_2(getDirection() - 185, x, y);
 			moveTo(x + 128, y + 128);
 			setDirection(getDirection() - 5); //87.5
-			*/
+			
 		}
 		if (key == KEY_PRESS_SPACE)
 		{
-			getWorld()->addActor(new Spray(getX(),getY(),getDirection(),getWorld()));
-		}
+			if (m_spray > 0)
+			{
+				m_spray--;
+				getWorld()->addActor(new Spray(getX(), getY(), getDirection(), getWorld()));
+			}
+		}*/
 	}
-	return;
-}
-Socrates::~Socrates()
-{
-
+	if (key != KEY_PRESS_SPACE && m_spray < 20)
+	{
+		m_spray++;
+	}
 }
 
 dirtPile::dirtPile(double startX, double startY, StudentWorld* sWorld)
@@ -110,10 +140,7 @@ void dirtPile::doSomething()
 	}
 	return;
 }
-dirtPile::~dirtPile()
-{
 
-}
 Food::Food(double startX, double startY, StudentWorld* sWorld)
 	:Actor(IID_FOOD, startX, startY, 90, 1.0, 1, sWorld)
 {
@@ -123,10 +150,7 @@ void Food::doSomething()
 {
 	return;
 }
-Food::~Food()
-{
 
-}
 Pit::Pit(double startX, double startY, StudentWorld* sWorld)
 	:Actor(IID_PIT, startX, startY, 0, 1.0, 1, sWorld)
 {
@@ -135,8 +159,4 @@ Pit::Pit(double startX, double startY, StudentWorld* sWorld)
 void Pit::doSomething()
 {
 	return;
-}
-Pit::~Pit()
-{
-
 }
