@@ -19,6 +19,7 @@ public:
 	bool overlap(Actor* a1, Actor* a2);
 	bool hasOverlap(Actor* a);
 	Actor* findOverlap(Actor* a);
+	void addActor(Actor* a);
 	~StudentWorld();
 
 private:

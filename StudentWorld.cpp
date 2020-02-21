@@ -75,9 +75,17 @@ int StudentWorld::move()
 {
 	player->doSomething();
 	list<Actor*>::iterator it;
-	for (it = actList.begin(); it != actList.end(); it++)
+	for (it = actList.begin(); it != actList.end();)
 	{
 		(*it)->doSomething();
+
+		if (!(*it)->isAlive())
+		{
+			delete (*it);
+			it = actList.erase(it);
+		}
+		else 
+			it++;
 	}
 	// This code is here merely to allow the game to build, run, and terminate after you hit enter.
 	// Notice that the return value GWSTATUS_PLAYER_DIED will cause our framework to end the current level.
@@ -87,7 +95,7 @@ int StudentWorld::move()
 void StudentWorld::cleanUp()
 {
 	delete player;
-	player = NULL;
+	player = nullptr;
 
 	list<Actor*>::iterator it;
 	for (it = actList.begin(); it != actList.end(); it++)
@@ -129,6 +137,11 @@ Actor* StudentWorld::findOverlap(Actor* a)
 			return *it;
 	}
 	return nullptr;
+}
+
+void StudentWorld::addActor(Actor* a)
+{
+	actList.push_front(a);
 }
 
 

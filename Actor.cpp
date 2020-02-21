@@ -5,22 +5,61 @@
 using namespace std;
 
 Actor::Actor(int imageID, double startX, double startY, Direction dir, double size, int depth, StudentWorld* sWorld)
-	:GraphObject(imageID, startX, startY, dir, size, depth)
-{
-	m_alive = true;
-	m_sWorld = sWorld;
-}
+	:GraphObject(imageID, startX, startY, dir, size, depth), m_alive(true), m_sWorld(sWorld)
+{}
+
 StudentWorld* Actor::getWorld()
 {
 	return m_sWorld;
 }
+
 Actor::~Actor()
 {
 
 }
 
+DamageableObject::DamageableObject(int imageID, double startX, double startY, Direction dir, double size, int depth, StudentWorld* sWorld, double health)
+	:Actor(imageID, startX, startY, dir, size, depth,sWorld), m_health(health)
+{}
+
+Projectile::Projectile(int imageID, double startX, double startY, Direction dir, double size, int depth, StudentWorld* sWorld, double damage, double speed, double currDist, double maxDist)
+	: Actor(imageID, startX, startY, dir, size, depth, sWorld), m_damage(damage), m_speed(speed),m_currDist(currDist), m_maxDist(maxDist)
+{}
+
+void Projectile::checkCollide()
+{
+	DamageableObject* collision = static_cast<DamageableObject*>(getWorld()->findOverlap(this));
+	if (getWorld()->findOverlap(this) != nullptr && getWorld()->findOverlap(this)->hasHP())
+	{
+		collision->takeDamage(getDamage());
+		die();
+	}
+}
+
+void Projectile::move()
+{
+	moveForward(m_speed);
+	m_currDist += m_speed;
+	if (m_currDist >= m_maxDist)
+	{
+		die();
+		cerr << getX() << "   " << getY() << endl;
+	}
+}
+
+void Projectile::doSomething()
+{
+	checkCollide();
+	move();
+	checkCollide();
+}
+
+Spray::Spray(double startX, double startY, Direction dir, StudentWorld* sWorld)
+	:Projectile(IID_SPRAY, startX, startY, dir, 1.0, 1, sWorld, 2, SPRITE_WIDTH, 0, 256)
+{}
+
 Socrates::Socrates(StudentWorld* sWorld)
-	:Actor(IID_PLAYER, 0, 128, 0, 1.0, 1, sWorld)
+	:DamageableObject(IID_PLAYER, 0, 128, 0, 1.0, 1, sWorld,100)
 {
 
 }
@@ -34,7 +73,6 @@ void Socrates::doSomething()
 			moveAngle(getDirection(), 128);
 			setDirection(getDirection() + 5);
 			moveAngle(getDirection(), -128);
-			cout << getDirection() << endl;
 		}
 		if (key == KEY_PRESS_RIGHT)
 		{
@@ -47,6 +85,10 @@ void Socrates::doSomething()
 			setDirection(getDirection() - 5); //87.5
 			*/
 		}
+		if (key == KEY_PRESS_SPACE)
+		{
+			getWorld()->addActor(new Spray(getX(),getY(),getDirection(),getWorld()));
+		}
 	}
 	return;
 }
@@ -56,12 +98,16 @@ Socrates::~Socrates()
 }
 
 dirtPile::dirtPile(double startX, double startY, StudentWorld* sWorld)
-	:Actor(IID_DIRT, startX, startY, 0, 1.0, 1, sWorld)
+	:DamageableObject(IID_DIRT, startX, startY, 0, 1.0, 1, sWorld,1)
 {
 
 }
 void dirtPile::doSomething()
 {
+	if (getHealth() < 0)
+	{
+		die();
+	}
 	return;
 }
 dirtPile::~dirtPile()

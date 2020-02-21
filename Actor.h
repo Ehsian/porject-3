@@ -15,13 +15,49 @@ public:
 	virtual void doSomething() = 0;
 	virtual bool blocksDirt() { return false; };
 	void die() { m_alive = false; };
+	virtual bool hasHP() { return false; };
 	virtual ~Actor();
 private:
 	bool m_alive;
 	StudentWorld* m_sWorld;
 };
 
-class Socrates :public Actor
+class DamageableObject : public Actor
+{
+public:
+	DamageableObject(int imageID, double startX, double startY, Direction dir, double size, int depth, StudentWorld* sWorld, double health);
+	double getHealth() const { return m_health; }
+	void takeDamage(double damage) { m_health -= damage; }
+	virtual void restoreHealth(double health) { m_health += health; }
+	virtual bool hasHP() { return true; };
+
+private:
+	double m_health;
+};
+
+class Projectile : public Actor
+{
+public:
+	Projectile(int imageID, double startX, double startY, Direction dir, double size, int depth, StudentWorld* sWorld, double damage, double speed, double m_currDist, double maxDist);
+	double getDamage() const { return m_damage; }
+	virtual void doSomething();
+	virtual void checkCollide();
+	virtual void move();
+
+private:
+	double m_damage;
+	double m_speed;
+	double m_currDist;
+	double m_maxDist;
+};
+
+class Spray : public Projectile 
+{
+public:
+	Spray(double startX, double startY, Direction dir, StudentWorld* sWorld);
+};
+
+class Socrates :public DamageableObject
 {
 public:
 	Socrates(StudentWorld* sWorld);
@@ -35,7 +71,7 @@ public:
 	virtual ~Socrates();
 };
 
-class dirtPile :public Actor
+class dirtPile :public DamageableObject
 {
 public:
 	dirtPile(double startX, double startY, StudentWorld* sWorld);
