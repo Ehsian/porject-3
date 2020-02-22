@@ -117,6 +117,13 @@ bool StudentWorld::overlap(Actor* a1, Actor* a2)
 	return false;
 }
 
+double StudentWorld::calcOverlap(Actor* a1, Actor* a2)
+{
+	double distance = sqrt((a1->getX() - a2->getX()) * (a1->getX() - a2->getX()) +
+		(a1->getY() - a2->getY()) * (a1->getY() - a2->getY()));
+	return distance;
+}
+
 bool StudentWorld::hasOverlap(Actor* a)
 {
 	list<Actor*>::iterator it;
@@ -137,6 +144,23 @@ Actor* StudentWorld::findOverlap(Actor* a)
 			return *it;
 	}
 	return nullptr;
+}
+
+void StudentWorld::checkCollision(Projectile* a)
+{
+	DamageableObject* collision = static_cast<DamageableObject*>(findOverlap(a));
+	if (findOverlap(a) != nullptr && findOverlap(a)->hasHP())
+	{
+		collision->takeDamage(a->getDamage());
+		a->die();
+	}
+	if (findOverlap(a) != nullptr && findOverlap(a)->hasHP())
+	{
+		if (collision->getHealth() <= 0)
+		{
+			findOverlap(a)->die();
+		}
+	}
 }
 
 void StudentWorld::addActor(Actor* a)

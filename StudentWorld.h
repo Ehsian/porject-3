@@ -17,8 +17,10 @@ public:
 	virtual void cleanUp();
 	void randomSpawn(double& x, double& y);
 	bool overlap(Actor* a1, Actor* a2);
+	double calcOverlap(Actor* a1, Actor* a2);
 	bool hasOverlap(Actor* a);
 	Actor* findOverlap(Actor* a);
+	void checkCollision(Projectile* a);
 	void addActor(Actor* a);
 	~StudentWorld();
 

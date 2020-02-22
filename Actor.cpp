@@ -21,7 +21,11 @@ Projectile::Projectile(int imageID, double startX, double startY, Direction dir,
 	: Actor(imageID, startX, startY, dir, size, depth, sWorld), m_damage(damage), m_speed(speed),m_currDist(currDist), m_maxDist(maxDist)
 {}
 
-void Projectile::checkCollide()
+Bacteria::Bacteria(int imageID, double startX, double startY, Direction dir, double size, int depth, StudentWorld* sWorld, double health, double damage, double speed, int score, int plan, int food)
+	:DamageableObject(imageID, startX, startY, dir,size, depth,sWorld, health), m_damage(damage), m_speed(speed), m_score(score), m_plan(plan), m_food(food)
+{}
+
+/*void Projectile::checkCollide()
 {
 	DamageableObject* collision = static_cast<DamageableObject*>(getWorld()->findOverlap(this));
 	if (getWorld()->findOverlap(this) != nullptr && getWorld()->findOverlap(this)->hasHP())
@@ -29,7 +33,14 @@ void Projectile::checkCollide()
 		collision->takeDamage(getDamage());
 		die();
 	}
-}
+	if (getWorld()->findOverlap(this) != nullptr && getWorld()->findOverlap(this)->hasHP())
+	{
+		if (collision->getHealth() <= 0)
+		{
+			getWorld()->findOverlap(this)->die();
+		}
+	}
+}*/
 
 void Projectile::move()
 {
@@ -44,13 +55,16 @@ void Projectile::move()
 
 void Projectile::doSomething()
 {
-	checkCollide();
+	getWorld()->checkCollision(this);
 	move();
-	checkCollide();
 }
 
 Spray::Spray(double startX, double startY, Direction dir, StudentWorld* sWorld)
 	:Projectile(IID_SPRAY, startX, startY, dir, 1.0, 1, sWorld, 2, SPRITE_WIDTH, 0, 112)
+{}
+
+Flame::Flame(double startX, double startY, Direction dir, StudentWorld* sWorld)
+	: Projectile(IID_FLAME, startX, startY, dir, 1.0, 1, sWorld, 5, SPRITE_WIDTH, 0, 32)
 {}
 
 Socrates::Socrates(StudentWorld* sWorld)
@@ -81,17 +95,22 @@ void Socrates::doSomething()
 			{
 				m_spray--;
 				double x, y;
-				getPositionInThisDirection(getDirection(), 2, x, y);
+				getPositionInThisDirection(getDirection(), 1, x, y);
 				getWorld()->addActor(new Spray(x, y, getDirection(), getWorld()));
 			}
 			break;
 		case KEY_PRESS_ENTER:
-			for (int i = 0; i < 16; i++)
+			if (m_flame > 0)
 			{
-				double x, y;
-				getPositionInThisDirection(getDirection(), 2, x, y);
-				getWorld()->addActor(new Spray(x, y, getDirection()+22*i, getWorld()));
+				m_flame--;
+				for (int i = 0; i < 16; i++)
+				{
+					double x, y;
+					getPositionInThisDirection(getDirection() + 22 * i, SPRITE_WIDTH, x, y);
+					getWorld()->addActor(new Flame(x, y, getDirection() + 22 * i, getWorld()));
+				}
 			}
+			break;
 		default: break;
 		}
 
@@ -128,17 +147,13 @@ void Socrates::doSomething()
 }
 
 dirtPile::dirtPile(double startX, double startY, StudentWorld* sWorld)
-	:DamageableObject(IID_DIRT, startX, startY, 0, 1.0, 1, sWorld,1)
+	:DamageableObject(IID_DIRT, startX, startY, 0, 1.0, 1, sWorld,0)
 {
 
 }
 void dirtPile::doSomething()
 {
-	if (getHealth() < 0)
-	{
-		die();
-	}
-	return;
+
 }
 
 Food::Food(double startX, double startY, StudentWorld* sWorld)
