@@ -2,6 +2,7 @@
 #include "GameConstants.h"
 #include <string>
 #include <cmath>
+#include <iostream>
 using namespace std;
 
 GameWorld* createStudentWorld(string assetPath)
@@ -116,32 +117,30 @@ void StudentWorld::cleanUp()
 	actList.clear();
 }
 
-bool StudentWorld::overlap(Actor* a1, Actor* a2)
+double StudentWorld::calcOverlap(double x1, double y1, double x2, double y2)
+{
+	double distance = sqrt((x1 - x2) * (x1 - x2) +
+		(y1 - y2) * (y1 - y2));
+	return distance;
+}
+
+bool StudentWorld::overlap(double x1, double y1, double x2, double y2)
 {
 	// Euclidean distance
-	if (calcOverlap(a1,a2) <= 8)
+	if (calcOverlap(x1,y1,x2,y2) <= SPRITE_WIDTH)
 	{
 		return true;
 	}
 	return false;
 }
 
-bool StudentWorld::overlapCoord(Actor* a, double x, double y)
+bool StudentWorld::overlapBlock(double x1, double y1, double x2, double y2)
 {
-	double distance = sqrt((a->getX() - x) * (a->getX() - x) +
-		(a->getY() - y) * (a->getY() - y));
-	if (distance < SPRITE_WIDTH / 2)
+	if (calcOverlap(x1, y1, x2, y2) <= SPRITE_WIDTH/2)
 	{
 		return true;
 	}
 	return false;
-}
-
-double StudentWorld::calcOverlap(Actor* a1, Actor* a2)
-{
-	double distance = sqrt((a1->getX() - a2->getX()) * (a1->getX() - a2->getX()) +
-		(a1->getY() - a2->getY()) * (a1->getY() - a2->getY()));
-	return distance;
 }
 
 bool StudentWorld::hasOverlap(Actor* a)
@@ -149,7 +148,7 @@ bool StudentWorld::hasOverlap(Actor* a)
 	list<Actor*>::iterator it;
 	for (it = actList.begin(); it != actList.end(); it++)
 	{
-		if (a != *it && overlap(a, *it))
+		if (a != *it && overlap(a->getX(),a->getY(), (*it)->getX(),(*it)->getY()))
 			return true;
 	}
 	return false;
@@ -160,7 +159,7 @@ Actor* StudentWorld::findOverlap(Actor* a)
 	list<Actor*>::iterator it;
 	for (it = actList.begin(); it != actList.end(); it++)
 	{
-		if (a != *it && overlap(a, *it))
+		if (a != *it && overlap(a->getX(), a->getY(), (*it)->getX(), (*it)->getY()))
 			return *it;
 	}
 	return nullptr;
@@ -186,7 +185,7 @@ void StudentWorld::checkCollision(Projectile* a)
 
 void StudentWorld::checkCollisionBac(Bacteria* a)
 {
-	if (overlap(a, player))
+	if (overlap(a->getX(), a->getY(), player->getX(), player->getY()))
 	{
 		player->takeDamage(a->getDamage());
 		return;
@@ -222,7 +221,24 @@ void StudentWorld::checkCollisionBac(Bacteria* a)
 	}
 }
 
-Actor* StudentWorld::findFood(Bacteria* a)
+bool StudentWorld::checkBlockBac(Bacteria* a)
+{
+	double x, y;
+	a->getPositionInThisDirection(a->getDirection(), 3, x, y);
+	list<Actor*>::iterator it;
+	for (it = actList.begin(); it != actList.end(); it++)
+	{
+		if (a != *it && overlapBlock(x, y, (*it)->getX(), (*it)->getY()) && (*it)->blocksBacteria())
+			return true;
+	}
+	if (calcOverlap(x, y, VIEW_WIDTH / 2, VIEW_HEIGHT / 2) >= VIEW_RADIUS)
+	{
+		return true;
+	}
+	return false;
+}
+
+int StudentWorld::findFood(Bacteria* a)
 {
 	list<Actor*>::iterator it;
 	Actor* nearFood = nullptr;
@@ -231,21 +247,26 @@ Actor* StudentWorld::findFood(Bacteria* a)
 	{
 		if (a != *it && (*it)->isBacFood())
 		{
-			if (calcOverlap(a, *it) <= close)
+			if (calcOverlap(a->getX(), a->getY(), (*it)->getX(), (*it)->getY()) <= close)
 			{
-				close = calcOverlap(a, *it);
+				close = calcOverlap(a->getX(), a->getY(), (*it)->getX(), (*it)->getY());
 				nearFood = *it;
 			}
 		}
 	}
-	return nearFood;
+	if (nearFood != nullptr)
+	{
+		double PI = 4 * atan(1);
+		return (180 / PI) * atan((nearFood->getY() - a->getY()) / (nearFood->getX() - a->getX()));
+	}
+	else 
+		return 0;
 }
 
 void StudentWorld::addActor(Actor* a)
 {
 	actList.push_back(a);
 }
-
 
 StudentWorld::~StudentWorld()
 {

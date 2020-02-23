@@ -16,14 +16,15 @@ public:
 	virtual int move();
 	virtual void cleanUp();
 	void randomSpawn(double& x, double& y);
-	bool overlap(Actor* a1, Actor* a2);
-	bool overlapCoord(Actor* a, double x, double y);
-	double calcOverlap(Actor* a1, Actor* a2);
+	double calcOverlap(double x1, double y1, double x2, double y2);
+	bool overlap(double x1, double y1, double x2, double y2);
+	bool overlapBlock(double x1, double y1, double x2, double y2);
 	bool hasOverlap(Actor* a);
 	Actor* findOverlap(Actor* a);
 	void checkCollision(Projectile* a);
 	void checkCollisionBac(Bacteria* a);
-	Actor* findFood(Bacteria* a);
+	bool checkBlockBac(Bacteria* a);
+	int findFood(Bacteria* a);
 	void addActor(Actor* a);
 	~StudentWorld();
 

@@ -87,13 +87,36 @@ void regSalm::doSomething()
 	{
 		move();
 	}
+	if (getPlan() == 0)
+	{
+		if (getWorld()->findFood(this) == 0)
+		{
+			setDirection(randInt(0, 359));
+			setPlan(10);
+			return;
+		}
+		if (getWorld()->findFood(this) != 0)
+		{
+			setDirection(getWorld()->findFood(this));
+			setPlan(10000);
+			return;
+		}
+	}
 }
 
 void regSalm::move() 
 {
 	setPlan(getPlan()-1);
-	double x, y;
-	getPositionInThisDirection(getDirection(), 3,x,y);
+	if (!getWorld()->checkBlockBac(this))
+	{
+		moveForward(3);
+	}
+	if (getWorld()->checkBlockBac(this))
+	{
+		setDirection(randInt(0, 359));
+		setPlan(10);
+		return;
+	}
 }
 
 Socrates::Socrates(StudentWorld* sWorld)
@@ -129,7 +152,7 @@ void Socrates::doSomething()
 			{
 				m_spray--;
 				double x, y;
-				getPositionInThisDirection(getDirection(), 1, x, y);
+				getPositionInThisDirection(getDirection(), 4, x, y);
 				getWorld()->addActor(new Spray(x, y, getDirection(), getWorld()));
 			}
 			break;
