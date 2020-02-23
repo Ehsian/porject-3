@@ -58,7 +58,7 @@ int StudentWorld::init()
 		double randX, randY;
 		randomSpawn(randX, randY);
 		dirtPile* newdirtPile = new dirtPile(randX, randY, this);
-		while (hasOverlap(newdirtPile) && (findOverlap(newdirtPile)->blocksDirt()))
+		while (hasOverlap(newdirtPile) && (!findOverlap(newdirtPile)->blocksBacteria()))
 		{
 			double x, y;
 			randomSpawn(x, y);
@@ -66,7 +66,13 @@ int StudentWorld::init()
 		}
 		actList.push_back(newdirtPile);
 	}
-
+	for (double i = 0; i < 3; i++)
+	{
+		Food* newFood = new Food(256, 137+8*i, this);
+		actList.push_back(newFood);
+	}
+	regSalm* newSalm = new regSalm(256, 128, this);
+	actList.push_back(newSalm);
 	setGameStatText("Score: " + to_string(getScore()) + " Level: " + to_string(getLevel()) + " Lives: " + to_string(getLives()));
 	return GWSTATUS_CONTINUE_GAME;
 }
@@ -86,6 +92,11 @@ int StudentWorld::move()
 		}
 		else 
 			it++;
+	}
+	if (!player->isAlive())
+	{
+		decLives();
+		return GWSTATUS_PLAYER_DIED;
 	}
 	// This code is here merely to allow the game to build, run, and terminate after you hit enter.
 	// Notice that the return value GWSTATUS_PLAYER_DIED will cause our framework to end the current level.
@@ -108,9 +119,18 @@ void StudentWorld::cleanUp()
 bool StudentWorld::overlap(Actor* a1, Actor* a2)
 {
 	// Euclidean distance
-	double distance = sqrt((a1->getX() - a2->getX()) * (a1->getX() - a2->getX()) +
-		(a1->getY() - a2->getY()) * (a1->getY() - a2->getY()));
-	if (distance < 8)
+	if (calcOverlap(a1,a2) <= 8)
+	{
+		return true;
+	}
+	return false;
+}
+
+bool StudentWorld::overlapCoord(Actor* a, double x, double y)
+{
+	double distance = sqrt((a->getX() - x) * (a->getX() - x) +
+		(a->getY() - y) * (a->getY() - y));
+	if (distance < SPRITE_WIDTH / 2)
 	{
 		return true;
 	}
@@ -146,6 +166,7 @@ Actor* StudentWorld::findOverlap(Actor* a)
 	return nullptr;
 }
 
+
 void StudentWorld::checkCollision(Projectile* a)
 {
 	DamageableObject* collision = static_cast<DamageableObject*>(findOverlap(a));
@@ -161,6 +182,63 @@ void StudentWorld::checkCollision(Projectile* a)
 			findOverlap(a)->die();
 		}
 	}
+}
+
+void StudentWorld::checkCollisionBac(Bacteria* a)
+{
+	if (overlap(a, player))
+	{
+		player->takeDamage(a->getDamage());
+		return;
+	}
+	if (a->getFood() == 3)
+	{
+		double x, y;
+		if (a->getX() < VIEW_WIDTH/2)
+			x = a->getX() + SPRITE_WIDTH;
+		if (a->getX() > VIEW_WIDTH / 2)
+			x = a->getX() - SPRITE_WIDTH;
+		if (a->getX() > VIEW_WIDTH / 2)
+			x = a->getX() - SPRITE_WIDTH;
+		if (a->getY() < VIEW_WIDTH / 2)
+			y = a->getY() + SPRITE_WIDTH;
+		if (a->getY() > VIEW_WIDTH / 2)
+			y = a->getY() - SPRITE_WIDTH;
+		if (a->getY() > VIEW_WIDTH / 2)
+			y = a->getY() - SPRITE_WIDTH;
+
+		if (a->getDamage() == 1)
+		{
+			regSalm* newSalm = new regSalm(x, y, this);
+			actList.push_back(newSalm);
+		}
+		a->setFood(0);
+		return;
+	}
+	if (findOverlap(a) != nullptr && findOverlap(a)->isBacFood())
+	{
+		findOverlap(a)->die();
+		a->setFood(a->getFood() + 1);
+	}
+}
+
+Actor* StudentWorld::findFood(Bacteria* a)
+{
+	list<Actor*>::iterator it;
+	Actor* nearFood = nullptr;
+	double close = 128;
+	for (it = actList.begin(); it != actList.end(); it++)
+	{
+		if (a != *it && (*it)->isBacFood())
+		{
+			if (calcOverlap(a, *it) <= close)
+			{
+				close = calcOverlap(a, *it);
+				nearFood = *it;
+			}
+		}
+	}
+	return nearFood;
 }
 
 void StudentWorld::addActor(Actor* a)

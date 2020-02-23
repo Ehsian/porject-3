@@ -13,7 +13,7 @@ public:
 	StudentWorld* getWorld();
 	bool isAlive() { return m_alive; };
 	virtual void doSomething() = 0;
-	virtual bool blocksDirt() { return false; };
+	virtual bool isBacFood() { return false; };
 	void die() { m_alive = false; };
 	virtual bool hasHP() { return false; };
 	virtual bool blocksBacteria() { return false; };
@@ -39,7 +39,7 @@ class Projectile : public Actor
 {
 public:
 	Projectile(int imageID, double startX, double startY, Direction dir, double size, int depth, StudentWorld* sWorld, double damage, double speed, double currDist, double maxDist);
-	double getDamage() const { return m_damage; }
+	double getDamage() { return m_damage; }
 	virtual void doSomething();
 	/*virtual void checkCollide();*/
 	
@@ -57,10 +57,12 @@ class Bacteria : public DamageableObject
 public:
 	Bacteria(int imageID, double startX, double startY, Direction dir, double size, int depth, StudentWorld* sWorld, double health, double damage, double speed, int score, int plan, int food);
 	void setPlan(int plan) { m_plan = plan; };
-	/*virtual void doSomething();
-	virtual void dropFood();
-	virtual void moveplan();
-	virtual void findFood();*/
+	int getPlan() { return m_plan; };
+	double getDamage() { return m_damage; };
+	int getFood() { return m_food; };
+	void setFood(int food) { m_food = food; };
+	virtual void doSomething();
+	virtual void move() = 0;
 private:
 	double m_damage;
 	double m_speed;
@@ -81,12 +83,20 @@ public:
 	Flame(double startX, double startY, Direction dir, StudentWorld* sWorld);
 };
 
+class regSalm : public Bacteria
+{
+public:
+	regSalm(double startX, double startY, StudentWorld* sWorld);
+	void doSomething();
+	void move();
+};
+
 class Socrates :public DamageableObject
 {
 public:
 	Socrates(StudentWorld* sWorld);
 	virtual void doSomething();
-	bool hitByBacteria() { return true; };
+	virtual bool hitByBacteria() { return true; };
 	/*virtual void moveAngle_2(Direction angle, double &x, double &y)
 	{
 		const double PI = 4 * atan(1);
@@ -110,8 +120,8 @@ class Food :public Actor
 {
 public:
 	Food(double startX, double startY, StudentWorld* sWorld);
+	virtual bool isBacFood() { return true; };
 	virtual void doSomething();
-	virtual bool blocksDirt() { return true; };
 };
 
 class Pit : public Actor
@@ -119,7 +129,6 @@ class Pit : public Actor
 public:
 	Pit(double startX, double startY, StudentWorld* sWorld);
 	virtual void doSomething();
-	virtual bool blocksDirt() { return true; }
 };
 // Students:  Add code to this file, Actor.cpp, StudentWorld.h, and StudentWorld.cpp
 

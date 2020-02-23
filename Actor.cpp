@@ -59,6 +59,11 @@ void Projectile::doSomething()
 	move();
 }
 
+void Bacteria::doSomething()
+{
+	getWorld()->checkCollisionBac(this);
+}
+
 Spray::Spray(double startX, double startY, Direction dir, StudentWorld* sWorld)
 	:Projectile(IID_SPRAY, startX, startY, dir, 1.0, 1, sWorld, 2, SPRITE_WIDTH, 0, 112)
 {}
@@ -67,6 +72,30 @@ Flame::Flame(double startX, double startY, Direction dir, StudentWorld* sWorld)
 	: Projectile(IID_FLAME, startX, startY, dir, 1.0, 1, sWorld, 5, SPRITE_WIDTH, 0, 32)
 {}
 
+regSalm::regSalm(double startX, double startY, StudentWorld* sWorld)
+	: Bacteria(IID_SALMONELLA, startX, startY, 90, 1.0, 1, sWorld, 4, 1, 3, 100, 0, 0)
+{}
+
+void regSalm::doSomething()
+{
+	if (!isAlive())
+	{
+		return;
+	}
+	Bacteria::doSomething();
+	if (getPlan() > 0)
+	{
+		move();
+	}
+}
+
+void regSalm::move() 
+{
+	setPlan(getPlan()-1);
+	double x, y;
+	getPositionInThisDirection(getDirection(), 3,x,y);
+}
+
 Socrates::Socrates(StudentWorld* sWorld)
 	:DamageableObject(IID_PLAYER, 0, 128, 0, 1.0, 1, sWorld,100)
 {
@@ -74,6 +103,11 @@ Socrates::Socrates(StudentWorld* sWorld)
 }
 void Socrates::doSomething()
 {
+	if (getHealth() <= 0)
+	{
+		die();
+		return;
+	}
 	int key;
 	
 	if (getWorld()->getKey(key))
@@ -113,7 +147,6 @@ void Socrates::doSomething()
 			break;
 		default: break;
 		}
-
 		/*if (key == KEY_PRESS_LEFT)
 		{
 			moveAngle(getDirection(), 128);
