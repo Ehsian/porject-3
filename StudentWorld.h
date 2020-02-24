@@ -26,11 +26,13 @@ public:
 	bool checkBlockBac(Bacteria* a);
 	int findFood(Bacteria* a);
 	void addActor(Actor* a);
+	int remainingBac() { return getLevel() * 5 - m_bacKilled; };
 	~StudentWorld();
 
 private:
 	std::list<Actor*> actList;
 	Socrates* player;
+	int m_bacKilled;
 };
 
 #endif // STUDENTWORLD_H_

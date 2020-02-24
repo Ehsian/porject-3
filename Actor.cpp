@@ -49,7 +49,6 @@ void Projectile::move()
 	if (m_currDist >= m_maxDist)
 	{
 		die();
-		cerr << getX() << "   " << getY() << endl;
 	}
 }
 
@@ -78,8 +77,10 @@ regSalm::regSalm(double startX, double startY, StudentWorld* sWorld)
 
 void regSalm::doSomething()
 {
-	if (!isAlive())
+	if (getHealth() <= 0)
 	{
+		die();
+		getWorld()->increaseScore(getScoreBac());
 		return;
 	}
 	Bacteria::doSomething();
@@ -203,7 +204,7 @@ void Socrates::doSomething()
 }
 
 dirtPile::dirtPile(double startX, double startY, StudentWorld* sWorld)
-	:DamageableObject(IID_DIRT, startX, startY, 0, 1.0, 1, sWorld,0)
+	:Actor(IID_DIRT, startX, startY, 0, 1.0, 1, sWorld)
 {
 
 }
@@ -223,11 +224,22 @@ void Food::doSomething()
 }
 
 Pit::Pit(double startX, double startY, StudentWorld* sWorld)
-	:Actor(IID_PIT, startX, startY, 0, 1.0, 1, sWorld)
+	:Actor(IID_PIT, startX, startY, 0, 1.0, 1, sWorld), m_regSalm(5)
 {
 
 }
 void Pit::doSomething()
 {
-	return;
+	if (m_regSalm == 0)
+	{
+		die();
+	}
+	if (m_regSalm != 0)
+	{
+		if (randInt(1, 50) == 2)
+		{
+			getWorld()->addActor(new regSalm(getX(), getY(), getWorld()));
+			m_regSalm--;
+		}
+	}
 }

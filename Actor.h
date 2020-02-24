@@ -17,6 +17,8 @@ public:
 	void die() { m_alive = false; };
 	virtual bool hasHP() { return false; };
 	virtual bool blocksBacteria() { return false; };
+	virtual bool hostile() { return false; };
+	virtual bool hitByProj() { return false; };
 private:
 	bool m_alive;
 	StudentWorld* m_sWorld;
@@ -59,9 +61,11 @@ public:
 	void setPlan(int plan) { m_plan = plan; };
 	int getPlan() { return m_plan; };
 	double getDamage() { return m_damage; };
+	int getScoreBac() { return m_score; };
 	int getFood() { return m_food; };
 	void setFood(int food) { m_food = food; };
 	virtual void doSomething();
+	virtual bool hostile() { return true; };
 	virtual void move() = 0;
 private:
 	double m_damage;
@@ -96,7 +100,6 @@ class Socrates :public DamageableObject
 public:
 	Socrates(StudentWorld* sWorld);
 	virtual void doSomething();
-	virtual bool hitByBacteria() { return true; };
 	/*virtual void moveAngle_2(Direction angle, double &x, double &y)
 	{
 		const double PI = 4 * atan(1);
@@ -108,11 +111,12 @@ private:
 	int m_flame = 5;
 };
 
-class dirtPile :public DamageableObject
+class dirtPile :public Actor
 {
 public:
 	dirtPile(double startX, double startY, StudentWorld* sWorld);
 	virtual bool blocksBacteria() { return true; };
+	virtual bool hitByProj() { return true; };
 	virtual void doSomething();
 };
 
@@ -129,6 +133,8 @@ class Pit : public Actor
 public:
 	Pit(double startX, double startY, StudentWorld* sWorld);
 	virtual void doSomething();
+private:
+	int m_regSalm;
 };
 // Students:  Add code to this file, Actor.cpp, StudentWorld.h, and StudentWorld.cpp
 

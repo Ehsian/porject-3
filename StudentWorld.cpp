@@ -67,14 +67,15 @@ int StudentWorld::init()
 		}
 		actList.push_back(newdirtPile);
 	}
-	for (double i = 0; i < 3; i++)
+	m_bacKilled = 0;
+	/*for (double i = 0; i < 3; i++)
 	{
 		Food* newFood = new Food(256, 137+8*i, this);
 		actList.push_back(newFood);
 	}
 	regSalm* newSalm = new regSalm(256, 128, this);
 	actList.push_back(newSalm);
-	setGameStatText("Score: " + to_string(getScore()) + " Level: " + to_string(getLevel()) + " Lives: " + to_string(getLives()));
+	*/
 	return GWSTATUS_CONTINUE_GAME;
 }
 
@@ -88,6 +89,10 @@ int StudentWorld::move()
 
 		if (!(*it)->isAlive())
 		{
+			if ((*it)->hostile())
+			{
+				m_bacKilled++;
+			}
 			delete (*it);
 			it = actList.erase(it);
 		}
@@ -99,6 +104,12 @@ int StudentWorld::move()
 		decLives();
 		return GWSTATUS_PLAYER_DIED;
 	}
+	if (remainingBac() == 0)
+	{
+		playSound(SOUND_FINISHED_LEVEL);
+		return GWSTATUS_FINISHED_LEVEL;
+	}
+	setGameStatText("Score: " + to_string(getScore()) + " Level: " + to_string(getLevel()) + " Lives: " + to_string(getLives()));
 	// This code is here merely to allow the game to build, run, and terminate after you hit enter.
 	// Notice that the return value GWSTATUS_PLAYER_DIED will cause our framework to end the current level.
 	return GWSTATUS_CONTINUE_GAME;
@@ -174,12 +185,10 @@ void StudentWorld::checkCollision(Projectile* a)
 		collision->takeDamage(a->getDamage());
 		a->die();
 	}
-	if (findOverlap(a) != nullptr && findOverlap(a)->hasHP())
+	if (findOverlap(a) != nullptr && !findOverlap(a)->hasHP() && findOverlap(a)->hitByProj())
 	{
-		if (collision->getHealth() <= 0)
-		{
-			findOverlap(a)->die();
-		}
+		findOverlap(a)->die();
+		a->die();
 	}
 }
 
