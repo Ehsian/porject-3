@@ -29,13 +29,13 @@ class DamageableObject : public Actor
 {
 public:
 	DamageableObject(int imageID, double startX, double startY, Direction dir, double size, int depth, StudentWorld* sWorld, double health);
-	double getHealth() const { return m_health; }
+	int getHealth() const { return m_health; }
 	void takeDamage(double damage) { m_health -= damage; }
 	virtual void restoreHealth(double health) { m_health += health; }
 	virtual bool hasHP() { return true; };
 
 private:
-	double m_health;
+	int m_health;
 };
 
 class Projectile : public Actor
@@ -112,6 +112,8 @@ class Socrates :public DamageableObject
 {
 public:
 	Socrates(StudentWorld* sWorld);
+	int getSpray() { return m_spray; };
+	int getFlame() { return m_flame; };
 	virtual void doSomething();
 	/*virtual void moveAngle_2(Direction angle, double &x, double &y)
 	{

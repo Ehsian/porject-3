@@ -125,6 +125,7 @@ void regSalm::doSomething()
 			getWorld()->addActor(new Food(getX(), getY(), getWorld()));
 		}
 		die();
+		getWorld()->playSound(SOUND_SALMONELLA_DIE);
 		getWorld()->increaseScore(getScoreBac());
 		return;
 	}
@@ -150,6 +151,7 @@ void aggSalm::doSomething()
 			getWorld()->addActor(new Food(getX(), getY(), getWorld()));
 		}
 		die();
+		getWorld()->playSound(SOUND_SALMONELLA_DIE);
 		getWorld()->increaseScore(getScoreBac());
 		return;
 	}
@@ -185,6 +187,7 @@ void eColi::doSomething()
 			getWorld()->addActor(new Food(getX(), getY(), getWorld()));
 		}
 		die();
+		getWorld()->playSound(SOUND_ECOLI_DIE);
 		getWorld()->increaseScore(getScoreBac());
 		return;
 	}
@@ -217,6 +220,7 @@ void Socrates::doSomething()
 	if (getHealth() <= 0)
 	{
 		die();
+		getWorld()->playSound(SOUND_PLAYER_DIE);
 		return;
 	}
 	int key;
@@ -242,6 +246,7 @@ void Socrates::doSomething()
 				double x, y;
 				getPositionInThisDirection(getDirection(), 4, x, y);
 				getWorld()->addActor(new Spray(x, y, getDirection(), getWorld()));
+				getWorld()->playSound(SOUND_PLAYER_SPRAY);
 			}
 			break;
 		case KEY_PRESS_ENTER:
@@ -254,6 +259,7 @@ void Socrates::doSomething()
 					getPositionInThisDirection(getDirection() + 22 * i, SPRITE_WIDTH, x, y);
 					getWorld()->addActor(new Flame(x, y, getDirection() + 22 * i, getWorld()));
 				}
+				getWorld()->playSound(SOUND_PLAYER_FIRE);
 			}
 			break;
 		default: break;
@@ -325,7 +331,8 @@ void Pit::doSomething()
 	{
 		if (randInt(1, 50) == 2)
 		{
-			getWorld()->addActor(new eColi(getX(), getY(), getWorld()));
+			getWorld()->addActor(new aggSalm(getX(), getY(), getWorld()));
+			getWorld()->playSound(SOUND_BACTERIUM_BORN);
 			m_totalBac--;
 			m_regSalm--;
 		}

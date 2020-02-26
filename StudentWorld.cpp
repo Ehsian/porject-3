@@ -108,7 +108,7 @@ int StudentWorld::move()
 		playSound(SOUND_FINISHED_LEVEL);
 		return GWSTATUS_FINISHED_LEVEL;
 	}
-	setGameStatText("Score: " + to_string(getScore()) + " Level: " + to_string(getLevel()) + " Lives: " + to_string(getLives()));
+	setGameStatText("Score: " + to_string(getScore()) + " Level: " + to_string(getLevel()) + " Lives: " + to_string(getLives()) + " Health: " + to_string(player->getHealth()) + " Sprays: " + to_string(player->getSpray()) + " Flames: " + to_string(player->getFlame()));
 	// This code is here merely to allow the game to build, run, and terminate after you hit enter.
 	// Notice that the return value GWSTATUS_PLAYER_DIED will cause our framework to end the current level.
 	return GWSTATUS_CONTINUE_GAME;
@@ -178,10 +178,19 @@ Actor* StudentWorld::findOverlap(Actor* a)
 
 void StudentWorld::checkCollision(Projectile* a)
 {
-	DamageableObject* collision = static_cast<DamageableObject*>(findOverlap(a));
+	Bacteria* collision = static_cast<Bacteria*>(findOverlap(a));
 	if (findOverlap(a) != nullptr && findOverlap(a)->hasHP())
 	{
 		collision->takeDamage(a->getDamage());
+		if (collision->getDamage() == 1 || collision->getDamage() == 2)
+		{
+			playSound(SOUND_SALMONELLA_HURT);
+		}
+		if (collision->getDamage() == 4)
+		{
+			playSound(SOUND_ECOLI_HURT);
+		}
+		//how to play sound
 		a->die();
 	}
 	if (findOverlap(a) != nullptr && !findOverlap(a)->hasHP() && findOverlap(a)->hitByProj())
@@ -196,6 +205,7 @@ void StudentWorld::checkCollisionBac(Bacteria* a)
 	if (overlap(a->getX(), a->getY(), player->getX(), player->getY()))
 	{
 		player->takeDamage(a->getDamage());
+		playSound(SOUND_PLAYER_HURT);
 		return;
 	}
 	if (a->getFood() == 3)
@@ -218,6 +228,16 @@ void StudentWorld::checkCollisionBac(Bacteria* a)
 		{
 			regSalm* newSalm = new regSalm(x, y, this);
 			actList.push_back(newSalm);
+		}
+		if (a->getDamage() == 2)
+		{
+			aggSalm* newaSalm = new aggSalm(x, y, this);
+			actList.push_back(newaSalm);
+		}
+		if (a->getDamage() == 4)
+		{
+			eColi* neweSalm = new eColi(x, y, this);
+			actList.push_back(neweSalm);
 		}
 		a->setFood(0);
 		return;
