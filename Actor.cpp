@@ -1,12 +1,15 @@
+
 #include "Actor.h"
 #include "StudentWorld.h"
 #include <iostream>
+
 
 using namespace std;
 
 Actor::Actor(int imageID, double startX, double startY, Direction dir, double size, int depth, StudentWorld* sWorld)
 	:GraphObject(imageID, startX, startY, dir, size, depth), m_alive(true), m_sWorld(sWorld)
 {}
+
 
 StudentWorld* Actor::getWorld()
 {
@@ -75,10 +78,52 @@ regSalm::regSalm(double startX, double startY, StudentWorld* sWorld)
 	: Bacteria(IID_SALMONELLA, startX, startY, 90, 1.0, 1, sWorld, 4, 1, 3, 100, 0, 0)
 {}
 
+aggSalm::aggSalm(double startX, double startY, StudentWorld* sWorld)
+	: Bacteria(IID_SALMONELLA, startX, startY, 90, 1.0, 1, sWorld, 10, 2, 3, 100, 0, 0)
+{}
+
+eColi::eColi(double startX, double startY, StudentWorld* sWorld)
+	: Bacteria(IID_ECOLI, startX, startY, 90, 1.0, 1, sWorld, 5, 4, 3, 100, 0, 0)
+{}
+
+void Bacteria::resetPlan()
+{
+	if (getWorld()->findFood(this) == -1)
+	{
+		setDirection(randInt(0, 359));
+		setPlan(10);
+		return;
+	}
+	if (getWorld()->findFood(this) != -1)
+	{
+		setDirection(getWorld()->findFood(this));
+		setPlan(10000);
+		return;
+	}
+}
+
+void Bacteria::move()
+{
+	setPlan(getPlan() - 1);
+	if (!getWorld()->checkBlockBac(this,3))
+	{
+		moveForward(3);
+	}
+	if (getWorld()->checkBlockBac(this,3))
+	{
+		setDirection(randInt(0, 359));
+		setPlan(10);
+	}
+}
+
 void regSalm::doSomething()
 {
 	if (getHealth() <= 0)
 	{
+		if(randInt(1, 2)==1)
+		{
+			getWorld()->addActor(new Food(getX(), getY(), getWorld()));
+		}
 		die();
 		getWorld()->increaseScore(getScoreBac());
 		return;
@@ -87,36 +132,78 @@ void regSalm::doSomething()
 	if (getPlan() > 0)
 	{
 		move();
+		if (getPlan() == 10)
+			return;
 	}
 	if (getPlan() == 0)
 	{
-		if (getWorld()->findFood(this) == 0)
-		{
-			setDirection(randInt(0, 359));
-			setPlan(10);
-			return;
-		}
-		if (getWorld()->findFood(this) != 0)
-		{
-			setDirection(getWorld()->findFood(this));
-			setPlan(10000);
-			return;
-		}
+		resetPlan();
 	}
 }
 
-void regSalm::move() 
+void aggSalm::doSomething()
 {
-	setPlan(getPlan()-1);
-	if (!getWorld()->checkBlockBac(this))
+	if (getHealth() <= 0)
 	{
-		moveForward(3);
-	}
-	if (getWorld()->checkBlockBac(this))
-	{
-		setDirection(randInt(0, 359));
-		setPlan(10);
+		if (randInt(1, 2) == 1)
+		{
+			getWorld()->addActor(new Food(getX(), getY(), getWorld()));
+		}
+		die();
+		getWorld()->increaseScore(getScoreBac());
 		return;
+	}
+	if (getWorld()->findSocrates(this,128) != -1)
+	{
+		setDirection(getWorld()->findSocrates(this,128));
+		if (!getWorld()->checkBlockBac(this,3))
+		{
+			moveForward(3);
+		}
+		Bacteria::doSomething();
+		return;
+	}
+	Bacteria::doSomething();
+	if (getPlan() > 0)
+	{
+		move();
+		if (getPlan() == 10)
+			return;
+	}
+	if (getPlan() == 0)
+	{
+		resetPlan();
+	}
+}
+
+void eColi::doSomething()
+{
+	if (getHealth() <= 0)
+	{
+		if (randInt(1, 2) == 1)
+		{
+			getWorld()->addActor(new Food(getX(), getY(), getWorld()));
+		}
+		die();
+		getWorld()->increaseScore(getScoreBac());
+		return;
+	}
+	Bacteria::doSomething();
+	if (getWorld()->findSocrates(this, 256) != -1)
+	{
+		setDirection(getWorld()->findSocrates(this, 256));
+		for (int i = 0; i < 10; i++)
+		{
+			if (!getWorld()->checkBlockBac(this, 2))
+			{
+				moveForward(2);
+				return;
+			}
+			if (getWorld()->checkBlockBac(this, 2))
+			{
+				setDirection(getDirection() + 10);
+			}
+		}
 	}
 }
 
@@ -224,21 +311,22 @@ void Food::doSomething()
 }
 
 Pit::Pit(double startX, double startY, StudentWorld* sWorld)
-	:Actor(IID_PIT, startX, startY, 0, 1.0, 1, sWorld), m_regSalm(5)
+	:Actor(IID_PIT, startX, startY, 0, 1.0, 1, sWorld), m_regSalm(5), m_aggSalm(3), m_totalBac(5)
 {
 
 }
 void Pit::doSomething()
 {
-	if (m_regSalm == 0)
+	if (m_totalBac == 0)
 	{
 		die();
 	}
-	if (m_regSalm != 0)
+	if (m_totalBac != 0)
 	{
 		if (randInt(1, 50) == 2)
 		{
-			getWorld()->addActor(new regSalm(getX(), getY(), getWorld()));
+			getWorld()->addActor(new eColi(getX(), getY(), getWorld()));
+			m_totalBac--;
 			m_regSalm--;
 		}
 	}

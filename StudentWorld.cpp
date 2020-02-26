@@ -1,9 +1,9 @@
 #include "StudentWorld.h"
 #include "GameConstants.h"
-#include <string>
-#include <cmath>
 #include <iostream>
 using namespace std;
+
+const double PI = 4 * atan(1);
 
 GameWorld* createStudentWorld(string assetPath)
 {
@@ -19,7 +19,6 @@ StudentWorld::StudentWorld(string assetPath)
 
 void StudentWorld::randomSpawn(double& x, double& y)
 {
-	const double PI = 4 * atan(1);
 	int distance = randInt(0, 120);
 	double angle = randInt(0, 360) * PI / 180;
 	x = distance * cos(angle) + VIEW_RADIUS;
@@ -230,10 +229,10 @@ void StudentWorld::checkCollisionBac(Bacteria* a)
 	}
 }
 
-bool StudentWorld::checkBlockBac(Bacteria* a)
+bool StudentWorld::checkBlockBac(Bacteria* a,int distance)
 {
 	double x, y;
-	a->getPositionInThisDirection(a->getDirection(), 3, x, y);
+	a->getPositionInThisDirection(a->getDirection(), distance, x, y);
 	list<Actor*>::iterator it;
 	for (it = actList.begin(); it != actList.end(); it++)
 	{
@@ -265,11 +264,22 @@ int StudentWorld::findFood(Bacteria* a)
 	}
 	if (nearFood != nullptr)
 	{
-		double PI = 4 * atan(1);
-		return (180 / PI) * atan((nearFood->getY() - a->getY()) / (nearFood->getX() - a->getX()));
+		double angle = (180 / PI) * atan2((nearFood->getY() - a->getY()), (nearFood->getX() - a->getX()));
+		return angle;
 	}
 	else 
-		return 0;
+		return -1;
+}
+
+int StudentWorld::findSocrates(Bacteria* a, int range)
+{
+	if (calcOverlap(a->getX(), a->getY(), player->getX(), player->getY()) <= range)
+	{
+		double angle = (180 / PI) * atan2((player->getY() - a->getY()), (player->getX() - a->getX()));
+		return angle;
+	}
+	else
+		return -1;
 }
 
 void StudentWorld::addActor(Actor* a)

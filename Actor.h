@@ -19,6 +19,7 @@ public:
 	virtual bool blocksBacteria() { return false; };
 	virtual bool hostile() { return false; };
 	virtual bool hitByProj() { return false; };
+	virtual ~Actor() {};
 private:
 	bool m_alive;
 	StudentWorld* m_sWorld;
@@ -44,8 +45,6 @@ public:
 	double getDamage() { return m_damage; }
 	virtual void doSomething();
 	/*virtual void checkCollide();*/
-	
-
 private:
 	virtual void move();
 	double m_damage;
@@ -64,9 +63,10 @@ public:
 	int getScoreBac() { return m_score; };
 	int getFood() { return m_food; };
 	void setFood(int food) { m_food = food; };
+	void resetPlan();
+	virtual void move();
 	virtual void doSomething();
 	virtual bool hostile() { return true; };
-	virtual void move() = 0;
 private:
 	double m_damage;
 	double m_speed;
@@ -92,7 +92,20 @@ class regSalm : public Bacteria
 public:
 	regSalm(double startX, double startY, StudentWorld* sWorld);
 	void doSomething();
-	void move();
+};
+
+class aggSalm : public Bacteria
+{
+public:
+	aggSalm(double startX, double startY, StudentWorld* sWorld);
+	void doSomething();
+};
+
+class eColi : public Bacteria
+{
+public:
+	eColi(double startX, double startY, StudentWorld* sWorld);
+	void doSomething();
 };
 
 class Socrates :public DamageableObject
@@ -135,6 +148,8 @@ public:
 	virtual void doSomething();
 private:
 	int m_regSalm;
+	int m_aggSalm;
+	int m_totalBac;
 };
 // Students:  Add code to this file, Actor.cpp, StudentWorld.h, and StudentWorld.cpp
 

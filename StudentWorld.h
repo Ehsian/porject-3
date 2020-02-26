@@ -5,8 +5,11 @@
 #include "Actor.h"
 #include <list>
 #include <string>
+#include <cmath>
 
 // Students:  Add code to this file, StudentWorld.cpp, Actor.h, and Actor.cpp
+class Socrates;
+class Actor;
 
 class StudentWorld : public GameWorld
 {
@@ -23,8 +26,9 @@ public:
 	Actor* findOverlap(Actor* a);
 	void checkCollision(Projectile* a);
 	void checkCollisionBac(Bacteria* a);
-	bool checkBlockBac(Bacteria* a);
+	bool checkBlockBac(Bacteria* a,int distance);
 	int findFood(Bacteria* a);
+	int findSocrates(Bacteria* a, int range);
 	void addActor(Actor* a);
 	int remainingBac() { return getLevel() * 5 - m_bacKilled; };
 	~StudentWorld();
