@@ -82,7 +82,7 @@ int StudentWorld::move()
 {
 	player->doSomething();
 	list<Actor*>::iterator it;
-	for (it = actList.begin(); it != actList.end();)
+	for (it = actList.begin(); it != actList.end(); it++)
 	{
 		(*it)->doSomething();
 
@@ -95,7 +95,7 @@ int StudentWorld::move()
 			delete (*it);
 			it = actList.erase(it);
 		}
-		else 
+		else
 			it++;
 	}
 	if (!player->isAlive())
@@ -137,7 +137,7 @@ double StudentWorld::calcOverlap(double x1, double y1, double x2, double y2)
 bool StudentWorld::overlap(double x1, double y1, double x2, double y2)
 {
 	// Euclidean distance
-	if (calcOverlap(x1,y1,x2,y2) <= SPRITE_WIDTH)
+	if (calcOverlap(x1, y1, x2, y2) <= SPRITE_WIDTH)
 	{
 		return true;
 	}
@@ -146,7 +146,7 @@ bool StudentWorld::overlap(double x1, double y1, double x2, double y2)
 
 bool StudentWorld::overlapBlock(double x1, double y1, double x2, double y2)
 {
-	if (calcOverlap(x1, y1, x2, y2) <= SPRITE_WIDTH/2)
+	if (calcOverlap(x1, y1, x2, y2) <= SPRITE_WIDTH / 2)
 	{
 		return true;
 	}
@@ -158,7 +158,7 @@ bool StudentWorld::hasOverlap(Actor* a)
 	list<Actor*>::iterator it;
 	for (it = actList.begin(); it != actList.end(); it++)
 	{
-		if (a != *it && overlap(a->getX(),a->getY(), (*it)->getX(),(*it)->getY()))
+		if (a != *it && overlap(a->getX(), a->getY(), (*it)->getX(), (*it)->getY()))
 			return true;
 	}
 	return false;
@@ -175,6 +175,14 @@ Actor* StudentWorld::findOverlap(Actor* a)
 	return nullptr;
 }
 
+bool StudentWorld::playerOverlap(Actor* a)
+{
+	if (overlap(a->getX(), a->getY(), player->getX(), player->getY()))
+	{
+		return true;
+	}
+	return false;
+}
 
 void StudentWorld::checkCollision(Projectile* a)
 {
@@ -211,7 +219,7 @@ void StudentWorld::checkCollisionBac(Bacteria* a)
 	if (a->getFood() == 3)
 	{
 		double x, y;
-		if (a->getX() < VIEW_WIDTH/2)
+		if (a->getX() < VIEW_WIDTH / 2)
 			x = a->getX() + SPRITE_WIDTH;
 		if (a->getX() > VIEW_WIDTH / 2)
 			x = a->getX() - SPRITE_WIDTH;
@@ -249,7 +257,7 @@ void StudentWorld::checkCollisionBac(Bacteria* a)
 	}
 }
 
-bool StudentWorld::checkBlockBac(Bacteria* a,int distance)
+bool StudentWorld::checkBlockBac(Bacteria* a, int distance)
 {
 	double x, y;
 	a->getPositionInThisDirection(a->getDirection(), distance, x, y);
@@ -287,7 +295,7 @@ int StudentWorld::findFood(Bacteria* a)
 		double angle = (180 / PI) * atan2((nearFood->getY() - a->getY()), (nearFood->getX() - a->getX()));
 		return angle;
 	}
-	else 
+	else
 		return -1;
 }
 
@@ -300,6 +308,16 @@ int StudentWorld::findSocrates(Bacteria* a, int range)
 	}
 	else
 		return -1;
+}
+
+void StudentWorld::addGoodie()
+{
+	double x = VIEW_RADIUS + (VIEW_RADIUS * cos(randInt(0, 360)) * PI / 180);
+	double y = VIEW_RADIUS + (VIEW_RADIUS * sin(randInt(0, 360)) * PI / 180);
+	if (randInt(0,50) == 2)
+	{
+		addActor(new FlameGoodie(x, y, this));
+	}
 }
 
 void StudentWorld::addActor(Actor* a)

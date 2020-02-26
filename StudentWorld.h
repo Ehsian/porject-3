@@ -23,13 +23,16 @@ public:
 	bool overlap(double x1, double y1, double x2, double y2);
 	bool overlapBlock(double x1, double y1, double x2, double y2);
 	bool hasOverlap(Actor* a);
+	bool playerOverlap(Actor* a);
 	Actor* findOverlap(Actor* a);
 	void checkCollision(Projectile* a);
 	void checkCollisionBac(Bacteria* a);
-	bool checkBlockBac(Bacteria* a,int distance);
+	bool checkBlockBac(Bacteria* a, int distance);
 	int findFood(Bacteria* a);
 	int findSocrates(Bacteria* a, int range);
+	void addGoodie();
 	void addActor(Actor* a);
+	Socrates* getPlayer() { return player; };
 	int remainingBac() { return getLevel() * 5 - m_bacKilled; };
 	~StudentWorld();
 

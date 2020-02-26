@@ -1,4 +1,3 @@
-
 #include "Actor.h"
 #include "StudentWorld.h"
 #include <iostream>
@@ -17,17 +16,30 @@ StudentWorld* Actor::getWorld()
 }
 
 DamageableObject::DamageableObject(int imageID, double startX, double startY, Direction dir, double size, int depth, StudentWorld* sWorld, double health)
-	:Actor(imageID, startX, startY, dir, size, depth,sWorld), m_health(health)
+	:Actor(imageID, startX, startY, dir, size, depth, sWorld), m_health(health)
 {}
 
 Projectile::Projectile(int imageID, double startX, double startY, Direction dir, double size, int depth, StudentWorld* sWorld, double damage, double speed, double currDist, double maxDist)
-	: Actor(imageID, startX, startY, dir, size, depth, sWorld), m_damage(damage), m_speed(speed),m_currDist(currDist), m_maxDist(maxDist)
+	: Actor(imageID, startX, startY, dir, size, depth, sWorld), m_damage(damage), m_speed(speed), m_currDist(currDist), m_maxDist(maxDist)
 {}
 
 Bacteria::Bacteria(int imageID, double startX, double startY, Direction dir, double size, int depth, StudentWorld* sWorld, double health, double damage, double speed, int score, int plan, int food)
-	:DamageableObject(imageID, startX, startY, dir,size, depth,sWorld, health), m_damage(damage), m_speed(speed), m_score(score), m_plan(plan), m_food(food)
+	: DamageableObject(imageID, startX, startY, dir, size, depth, sWorld, health), m_damage(damage), m_speed(speed), m_score(score), m_plan(plan), m_food(food)
 {}
 
+Goodie::Goodie(int imageID, double startX, double startY, Direction dir, double size, int depth, StudentWorld* sWorld, int lifeTicks, int score)
+	: Actor(imageID, startX, startY, dir, size, depth, sWorld), m_lifeTicks(lifeTicks), m_score(score)
+{}
+
+FlameGoodie::FlameGoodie(double startX, double startY, StudentWorld* sWorld)
+	: Goodie(IID_FLAME_THROWER_GOODIE, startX, startY, 0, 1.0, 1, sWorld, max(randInt(0, 300 - 10 * getWorld()->getLevel() - 1), 50), 300)
+{}
+
+void FlameGoodie::specialAbility()
+{
+	getWorld()->increaseScore(getScore());
+	getWorld()->getPlayer()->setFlame(getWorld()->getPlayer()->getFlame() + 5);
+}
 /*void Projectile::checkCollide()
 {
 	DamageableObject* collision = static_cast<DamageableObject*>(getWorld()->findOverlap(this));
@@ -44,6 +56,25 @@ Bacteria::Bacteria(int imageID, double startX, double startY, Direction dir, dou
 		}
 	}
 }*/
+void Goodie::doSomething()
+{
+	m_lifeTicks--;
+	if (!isAlive())
+	{
+		return;
+	}
+	if (getWorld()->playerOverlap(this))
+	{
+		specialAbility();
+		die();
+		getWorld()->playSound(SOUND_GOT_GOODIE);
+		return;
+	}
+	if (m_lifeTicks == 0)
+	{
+		die();
+	}
+}
 
 void Projectile::move()
 {
@@ -105,11 +136,11 @@ void Bacteria::resetPlan()
 void Bacteria::move()
 {
 	setPlan(getPlan() - 1);
-	if (!getWorld()->checkBlockBac(this,3))
+	if (!getWorld()->checkBlockBac(this, 3))
 	{
 		moveForward(3);
 	}
-	if (getWorld()->checkBlockBac(this,3))
+	if (getWorld()->checkBlockBac(this, 3))
 	{
 		setDirection(randInt(0, 359));
 		setPlan(10);
@@ -120,7 +151,7 @@ void regSalm::doSomething()
 {
 	if (getHealth() <= 0)
 	{
-		if(randInt(1, 2)==1)
+		if (randInt(1, 2) == 1)
 		{
 			getWorld()->addActor(new Food(getX(), getY(), getWorld()));
 		}
@@ -155,10 +186,10 @@ void aggSalm::doSomething()
 		getWorld()->increaseScore(getScoreBac());
 		return;
 	}
-	if (getWorld()->findSocrates(this,128) != -1)
+	if (getWorld()->findSocrates(this, 128) != -1)
 	{
-		setDirection(getWorld()->findSocrates(this,128));
-		if (!getWorld()->checkBlockBac(this,3))
+		setDirection(getWorld()->findSocrates(this, 128));
+		if (!getWorld()->checkBlockBac(this, 3))
 		{
 			moveForward(3);
 		}
@@ -211,7 +242,7 @@ void eColi::doSomething()
 }
 
 Socrates::Socrates(StudentWorld* sWorld)
-	:DamageableObject(IID_PLAYER, 0, 128, 0, 1.0, 1, sWorld,100)
+	:DamageableObject(IID_PLAYER, 0, 128, 0, 1.0, 1, sWorld, 100)
 {
 
 }
@@ -224,7 +255,7 @@ void Socrates::doSomething()
 		return;
 	}
 	int key;
-	
+
 	if (getWorld()->getKey(key))
 	{
 		switch (key)
@@ -279,7 +310,7 @@ void Socrates::doSomething()
 			moveAngle_2(getDirection() - 185, x, y);
 			moveTo(x + 128, y + 128);
 			setDirection(getDirection() - 5); //87.5
-			
+
 		}
 		if (key == KEY_PRESS_SPACE)
 		{
@@ -331,7 +362,7 @@ void Pit::doSomething()
 	{
 		if (randInt(1, 50) == 2)
 		{
-			getWorld()->addActor(new aggSalm(getX(), getY(), getWorld()));
+			getWorld()->addActor(new regSalm(getX(), getY(), getWorld()));
 			getWorld()->playSound(SOUND_BACTERIUM_BORN);
 			m_totalBac--;
 			m_regSalm--;

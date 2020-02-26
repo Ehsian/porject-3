@@ -25,6 +25,25 @@ private:
 	StudentWorld* m_sWorld;
 };
 
+class Goodie : public Actor
+{
+public:
+	Goodie(int imageID, double startX, double startY, Direction dir, double size, int depth, StudentWorld* sWorld, int lifeTicks, int score);
+	void doSomething();
+	int getScore() { return m_score; };
+	virtual void specialAbility() = 0;
+private:
+	int m_lifeTicks;
+	int m_score;
+};
+
+class FlameGoodie : public Goodie
+{
+public:
+	FlameGoodie(double startX, double startY, StudentWorld* sWorld);
+	virtual void specialAbility();
+};
+
 class DamageableObject : public Actor
 {
 public:
@@ -53,7 +72,7 @@ private:
 	double m_maxDist;
 };
 
-class Bacteria : public DamageableObject 
+class Bacteria : public DamageableObject
 {
 public:
 	Bacteria(int imageID, double startX, double startY, Direction dir, double size, int depth, StudentWorld* sWorld, double health, double damage, double speed, int score, int plan, int food);
@@ -75,7 +94,7 @@ private:
 	int m_food;
 };
 
-class Spray : public Projectile 
+class Spray : public Projectile
 {
 public:
 	Spray(double startX, double startY, Direction dir, StudentWorld* sWorld);
@@ -114,6 +133,7 @@ public:
 	Socrates(StudentWorld* sWorld);
 	int getSpray() { return m_spray; };
 	int getFlame() { return m_flame; };
+	void setFlame(int flame) { m_flame = flame; };
 	virtual void doSomething();
 	/*virtual void moveAngle_2(Direction angle, double &x, double &y)
 	{
