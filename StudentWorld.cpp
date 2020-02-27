@@ -11,9 +11,7 @@ GameWorld* createStudentWorld(string assetPath)
 {
 	return new StudentWorld(assetPath);
 }
-
 // Students:  Add code to this file, StudentWorld.h, Actor.h and Actor.cpp
-
 StudentWorld::StudentWorld(string assetPath)
 	: GameWorld(assetPath)
 {
@@ -26,6 +24,7 @@ void StudentWorld::randomSpawn(double& x, double& y)
 	x = distance * cos(angle) + VIEW_RADIUS;
 	y = distance * sin(angle) + VIEW_RADIUS;
 }
+
 int StudentWorld::init()
 {
 	player = new Socrates(this);

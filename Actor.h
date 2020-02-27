@@ -6,6 +6,10 @@
 
 class StudentWorld;
 
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Actor Declaration
+////////////////////////////////////////////////////////////////////////////////////////////////
+
 class Actor : public GraphObject
 {
 public:
@@ -24,6 +28,97 @@ private:
 	bool m_alive;
 	StudentWorld* m_sWorld;
 };
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// DamageableObject Declaration
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+class DamageableObject : public Actor
+{
+public:
+	DamageableObject(int imageID, double startX, double startY, Direction dir, double size, int depth, StudentWorld* sWorld, double health);
+	int getHealth() const { return m_health; }
+	void takeDamage(double damage) { m_health -= damage; }
+	virtual void restoreHealth() { m_health = 100; }
+	virtual bool hasHP() { return true; };
+
+private:
+	int m_health;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Socrates Declaration
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+class Socrates :public DamageableObject
+{
+public:
+	Socrates(StudentWorld* sWorld);
+	int getSpray() { return m_spray; };
+	int getFlame() { return m_flame; };
+	void setFlame(int flame) { m_flame = flame; };
+	virtual void doSomething();
+	/*virtual void moveAngle_2(Direction angle, double &x, double &y)
+	{
+		const double PI = 4 * atan(1);
+		x = (VIEW_RADIUS * cos(angle * 1.0 / 360 * 2 * PI));
+		y = (VIEW_RADIUS * sin(angle * 1.0 / 360 * 2 * PI));
+	}*/
+private:
+	int m_spray = 20;
+	int m_flame = 5;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Bacteria & Child Classes Declaration
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+class Bacteria : public DamageableObject
+{
+public:
+	Bacteria(int imageID, double startX, double startY, Direction dir, double size, int depth, StudentWorld* sWorld, double health, double damage, double speed, int score, int plan, int food);
+	void setPlan(int plan) { m_plan = plan; };
+	int getPlan() { return m_plan; };
+	double getDamage() { return m_damage; };
+	int getScoreBac() { return m_score; };
+	int getFood() { return m_food; };
+	void setFood(int food) { m_food = food; };
+	void resetPlan();
+	virtual void move();
+	virtual void doSomething();
+	virtual bool hostile() { return true; };
+private:
+	double m_damage;
+	double m_speed;
+	int m_score;
+	int m_plan;
+	int m_food;
+};
+
+class regSalm : public Bacteria
+{
+public:
+	regSalm(double startX, double startY, StudentWorld* sWorld);
+	void doSomething();
+};
+
+class aggSalm : public Bacteria
+{
+public:
+	aggSalm(double startX, double startY, StudentWorld* sWorld);
+	void doSomething();
+};
+
+class eColi : public Bacteria
+{
+public:
+	eColi(double startX, double startY, StudentWorld* sWorld);
+	void doSomething();
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Goodie & Child Class Declaration
+////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Goodie : public Actor
 {
@@ -66,18 +161,9 @@ public:
 	virtual void specialAbility();
 };
 
-class DamageableObject : public Actor
-{
-public:
-	DamageableObject(int imageID, double startX, double startY, Direction dir, double size, int depth, StudentWorld* sWorld, double health);
-	int getHealth() const { return m_health; }
-	void takeDamage(double damage) { m_health -= damage; }
-	virtual void restoreHealth() { m_health = 100; }
-	virtual bool hasHP() { return true; };
-
-private:
-	int m_health;
-};
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Projectile and Child Class Declaration
+////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Projectile : public Actor
 {
@@ -94,28 +180,6 @@ private:
 	double m_maxDist;
 };
 
-class Bacteria : public DamageableObject
-{
-public:
-	Bacteria(int imageID, double startX, double startY, Direction dir, double size, int depth, StudentWorld* sWorld, double health, double damage, double speed, int score, int plan, int food);
-	void setPlan(int plan) { m_plan = plan; };
-	int getPlan() { return m_plan; };
-	double getDamage() { return m_damage; };
-	int getScoreBac() { return m_score; };
-	int getFood() { return m_food; };
-	void setFood(int food) { m_food = food; };
-	void resetPlan();
-	virtual void move();
-	virtual void doSomething();
-	virtual bool hostile() { return true; };
-private:
-	double m_damage;
-	double m_speed;
-	int m_score;
-	int m_plan;
-	int m_food;
-};
-
 class Spray : public Projectile
 {
 public:
@@ -128,45 +192,9 @@ public:
 	Flame(double startX, double startY, Direction dir, StudentWorld* sWorld);
 };
 
-class regSalm : public Bacteria
-{
-public:
-	regSalm(double startX, double startY, StudentWorld* sWorld);
-	void doSomething();
-};
-
-class aggSalm : public Bacteria
-{
-public:
-	aggSalm(double startX, double startY, StudentWorld* sWorld);
-	void doSomething();
-};
-
-class eColi : public Bacteria
-{
-public:
-	eColi(double startX, double startY, StudentWorld* sWorld);
-	void doSomething();
-};
-
-class Socrates :public DamageableObject
-{
-public:
-	Socrates(StudentWorld* sWorld);
-	int getSpray() { return m_spray; };
-	int getFlame() { return m_flame; };
-	void setFlame(int flame) { m_flame = flame; };
-	virtual void doSomething();
-	/*virtual void moveAngle_2(Direction angle, double &x, double &y)
-	{
-		const double PI = 4 * atan(1);
-		x = (VIEW_RADIUS * cos(angle * 1.0 / 360 * 2 * PI));
-		y = (VIEW_RADIUS * sin(angle * 1.0 / 360 * 2 * PI));
-	}*/
-private:
-	int m_spray = 20;
-	int m_flame = 5;
-};
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Dirt Declaration
+////////////////////////////////////////////////////////////////////////////////////////////////
 
 class dirtPile :public Actor
 {
@@ -177,6 +205,10 @@ public:
 	virtual void doSomething();
 };
 
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Food Declaration
+////////////////////////////////////////////////////////////////////////////////////////////////
+
 class Food :public Actor
 {
 public:
@@ -184,6 +216,10 @@ public:
 	virtual bool isBacFood() { return true; };
 	virtual void doSomething();
 };
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Pit Declaration
+////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Pit : public Actor
 {

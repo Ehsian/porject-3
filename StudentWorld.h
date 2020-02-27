@@ -15,9 +15,14 @@ class StudentWorld : public GameWorld
 {
 public:
 	StudentWorld(std::string assetPath);
+
+	//base methods
 	virtual int init();
 	virtual int move();
 	virtual void cleanUp();
+	~StudentWorld();
+
+	//calc methods
 	void randomSpawn(double& x, double& y);
 	double calcOverlap(double x1, double y1, double x2, double y2);
 	bool overlap(double x1, double y1, double x2, double y2);
@@ -25,6 +30,8 @@ public:
 	bool hasOverlap(Actor* a);
 	bool playerOverlap(Actor* a);
 	Actor* findOverlap(Actor* a);
+
+	//actor action methods
 	void checkCollision(Projectile* a);
 	void checkCollisionBac(Bacteria* a);
 	bool checkBlockBac(Bacteria* a, int distance);
@@ -32,9 +39,10 @@ public:
 	int findSocrates(Bacteria* a, int range);
 	void addGoodie();
 	void addActor(Actor* a);
+
+	//other
 	Socrates* getPlayer() { return player; };
 	int remainingBac() { return getLevel() * 10 - m_bacKilled; };
-	~StudentWorld();
 
 private:
 	std::list<Actor*> actList;
