@@ -33,7 +33,7 @@ public:
 	void addGoodie();
 	void addActor(Actor* a);
 	Socrates* getPlayer() { return player; };
-	int remainingBac() { return getLevel() * 5 - m_bacKilled; };
+	int remainingBac() { return getLevel() * 10 - m_bacKilled; };
 	~StudentWorld();
 
 private:

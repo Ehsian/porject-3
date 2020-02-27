@@ -85,7 +85,19 @@ int StudentWorld::move()
 	for (it = actList.begin(); it != actList.end(); it++)
 	{
 		(*it)->doSomething();
-
+		if (!player->isAlive())
+		{
+			decLives();
+			return GWSTATUS_PLAYER_DIED;
+		}
+		if (remainingBac() == 0)
+		{
+			playSound(SOUND_FINISHED_LEVEL);
+			return GWSTATUS_FINISHED_LEVEL;
+		}
+	}
+	for (it = actList.begin(); it != actList.end();)
+	{
 		if (!(*it)->isAlive())
 		{
 			if ((*it)->hostile())
@@ -98,16 +110,7 @@ int StudentWorld::move()
 		else
 			it++;
 	}
-	if (!player->isAlive())
-	{
-		decLives();
-		return GWSTATUS_PLAYER_DIED;
-	}
-	if (remainingBac() == 0)
-	{
-		playSound(SOUND_FINISHED_LEVEL);
-		return GWSTATUS_FINISHED_LEVEL;
-	}
+	addGoodie();
 	setGameStatText("Score: " + to_string(getScore()) + " Level: " + to_string(getLevel()) + " Lives: " + to_string(getLives()) + " Health: " + to_string(player->getHealth()) + " Sprays: " + to_string(player->getSpray()) + " Flames: " + to_string(player->getFlame()));
 	// This code is here merely to allow the game to build, run, and terminate after you hit enter.
 	// Notice that the return value GWSTATUS_PLAYER_DIED will cause our framework to end the current level.
@@ -201,7 +204,7 @@ void StudentWorld::checkCollision(Projectile* a)
 		//how to play sound
 		a->die();
 	}
-	if (findOverlap(a) != nullptr && !findOverlap(a)->hasHP() && findOverlap(a)->hitByProj())
+	if (findOverlap(a) != nullptr && !findOverlap(a)->hasHP() && findOverlap(a)->hitByProj() && findOverlap(a)->isAlive())
 	{
 		findOverlap(a)->die();
 		a->die();
@@ -221,31 +224,34 @@ void StudentWorld::checkCollisionBac(Bacteria* a)
 		double x, y;
 		if (a->getX() < VIEW_WIDTH / 2)
 			x = a->getX() + SPRITE_WIDTH;
-		if (a->getX() > VIEW_WIDTH / 2)
+		else if (a->getX() > VIEW_WIDTH / 2)
 			x = a->getX() - SPRITE_WIDTH;
-		if (a->getX() > VIEW_WIDTH / 2)
-			x = a->getX() - SPRITE_WIDTH;
+		else
+			x = a->getX();
 		if (a->getY() < VIEW_WIDTH / 2)
 			y = a->getY() + SPRITE_WIDTH;
-		if (a->getY() > VIEW_WIDTH / 2)
+		else if (a->getY() > VIEW_WIDTH / 2)
 			y = a->getY() - SPRITE_WIDTH;
-		if (a->getY() > VIEW_WIDTH / 2)
-			y = a->getY() - SPRITE_WIDTH;
+		else
+			y = a->getY();
 
 		if (a->getDamage() == 1)
 		{
 			regSalm* newSalm = new regSalm(x, y, this);
 			actList.push_back(newSalm);
+			m_bacKilled--;
 		}
 		if (a->getDamage() == 2)
 		{
 			aggSalm* newaSalm = new aggSalm(x, y, this);
 			actList.push_back(newaSalm);
+			m_bacKilled--;
 		}
 		if (a->getDamage() == 4)
 		{
 			eColi* neweSalm = new eColi(x, y, this);
 			actList.push_back(neweSalm);
+			m_bacKilled--;
 		}
 		a->setFood(0);
 		return;
@@ -312,11 +318,13 @@ int StudentWorld::findSocrates(Bacteria* a, int range)
 
 void StudentWorld::addGoodie()
 {
-	double x = VIEW_RADIUS + (VIEW_RADIUS * cos(randInt(0, 360)) * PI / 180);
-	double y = VIEW_RADIUS + (VIEW_RADIUS * sin(randInt(0, 360)) * PI / 180);
+	int angle = randInt(0, 360);
+	double x = (VIEW_RADIUS * cos(angle * (PI / 180))) + VIEW_RADIUS;
+	double y = (VIEW_RADIUS * sin(angle * (PI / 180))) + VIEW_RADIUS;
 	if (randInt(0,50) == 2)
 	{
 		addActor(new FlameGoodie(x, y, this));
+		return;
 	}
 }
 

@@ -28,9 +28,10 @@ private:
 class Goodie : public Actor
 {
 public:
-	Goodie(int imageID, double startX, double startY, Direction dir, double size, int depth, StudentWorld* sWorld, int lifeTicks, int score);
+	Goodie(int imageID, double startX, double startY, Direction dir, double size, int depth, StudentWorld* sWorld, int score);
 	void doSomething();
 	int getScore() { return m_score; };
+	virtual bool hitByProj() { return true; };
 	virtual void specialAbility() = 0;
 private:
 	int m_lifeTicks;
@@ -171,6 +172,7 @@ public:
 private:
 	int m_regSalm;
 	int m_aggSalm;
+	int m_eColi;
 	int m_totalBac;
 };
 // Students:  Add code to this file, Actor.cpp, StudentWorld.h, and StudentWorld.cpp

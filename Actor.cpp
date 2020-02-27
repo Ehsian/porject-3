@@ -27,12 +27,14 @@ Bacteria::Bacteria(int imageID, double startX, double startY, Direction dir, dou
 	: DamageableObject(imageID, startX, startY, dir, size, depth, sWorld, health), m_damage(damage), m_speed(speed), m_score(score), m_plan(plan), m_food(food)
 {}
 
-Goodie::Goodie(int imageID, double startX, double startY, Direction dir, double size, int depth, StudentWorld* sWorld, int lifeTicks, int score)
-	: Actor(imageID, startX, startY, dir, size, depth, sWorld), m_lifeTicks(lifeTicks), m_score(score)
-{}
+Goodie::Goodie(int imageID, double startX, double startY, Direction dir, double size, int depth, StudentWorld* sWorld, int score)
+	: Actor(imageID, startX, startY, dir, size, depth, sWorld), m_score(score)
+{
+	m_lifeTicks = max(randInt(0, 300 - 10 * getWorld()->getLevel() - 1), 50);
+}
 
 FlameGoodie::FlameGoodie(double startX, double startY, StudentWorld* sWorld)
-	: Goodie(IID_FLAME_THROWER_GOODIE, startX, startY, 0, 1.0, 1, sWorld, max(randInt(0, 300 - 10 * getWorld()->getLevel() - 1), 50), 300)
+	: Goodie(IID_FLAME_THROWER_GOODIE, startX, startY, 0, 1.0, 1, sWorld, 300)
 {}
 
 void FlameGoodie::specialAbility()
@@ -348,7 +350,7 @@ void Food::doSomething()
 }
 
 Pit::Pit(double startX, double startY, StudentWorld* sWorld)
-	:Actor(IID_PIT, startX, startY, 0, 1.0, 1, sWorld), m_regSalm(5), m_aggSalm(3), m_totalBac(5)
+	:Actor(IID_PIT, startX, startY, 0, 1.0, 1, sWorld), m_regSalm(5), m_aggSalm(3), m_eColi(2), m_totalBac(10)
 {
 
 }
@@ -362,10 +364,34 @@ void Pit::doSomething()
 	{
 		if (randInt(1, 50) == 2)
 		{
-			getWorld()->addActor(new regSalm(getX(), getY(), getWorld()));
-			getWorld()->playSound(SOUND_BACTERIUM_BORN);
-			m_totalBac--;
-			m_regSalm--;
+			while (1 != 2)
+			{
+				int rand = randInt(0, 2);
+				if (rand == 0 && m_regSalm != 0)
+				{
+					getWorld()->addActor(new regSalm(getX(), getY(), getWorld()));
+					getWorld()->playSound(SOUND_BACTERIUM_BORN);
+					m_totalBac--;
+					m_regSalm--;
+					return;
+				}
+				if (rand == 1 && m_aggSalm != 0)
+				{
+					getWorld()->addActor(new aggSalm(getX(), getY(), getWorld()));
+					getWorld()->playSound(SOUND_BACTERIUM_BORN);
+					m_totalBac--;
+					m_aggSalm--;
+					return;
+				}
+				if (rand == 2 && m_eColi != 0)
+				{
+					getWorld()->addActor(new eColi(getX(), getY(), getWorld()));
+					getWorld()->playSound(SOUND_BACTERIUM_BORN);
+					m_totalBac--;
+					m_eColi--;
+					return;
+				}
+			}
 		}
 	}
 }
