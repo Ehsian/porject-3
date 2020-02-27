@@ -1,6 +1,8 @@
 #include "StudentWorld.h"
 #include "GameConstants.h"
 #include <iostream>
+#include <sstream>
+#include <iomanip>
 using namespace std;
 
 const double PI = 4 * atan(1);
@@ -111,7 +113,15 @@ int StudentWorld::move()
 			it++;
 	}
 	addGoodie();
-	setGameStatText("Score: " + to_string(getScore()) + " Level: " + to_string(getLevel()) + " Lives: " + to_string(getLives()) + " Health: " + to_string(player->getHealth()) + " Sprays: " + to_string(player->getSpray()) + " Flames: " + to_string(player->getFlame()));
+	ostringstream oss;
+	oss << "  Score: " << setw(6) << getScore() << oss.fill('0');
+	oss << "  Level: " << getLevel();
+	oss << "  Lives: " << getLives();
+	oss << "  Health: " << player->getHealth();
+	oss << "  Sprays: " << player->getSpray();
+	oss << "  Flames: " << player->getFlame();
+	setGameStatText(oss.str());
+	//setGameStatText("Score: " + to_string(getScore()) + " Level: " + to_string(getLevel()) + " Lives: " + to_string(getLives()) + " Health: " + to_string(player->getHealth()) + " Sprays: " + to_string(player->getSpray()) + " Flames: " + to_string(player->getFlame()));
 	// This code is here merely to allow the game to build, run, and terminate after you hit enter.
 	// Notice that the return value GWSTATUS_PLAYER_DIED will cause our framework to end the current level.
 	return GWSTATUS_CONTINUE_GAME;
@@ -321,10 +331,28 @@ void StudentWorld::addGoodie()
 	int angle = randInt(0, 360);
 	double x = (VIEW_RADIUS * cos(angle * (PI / 180))) + VIEW_RADIUS;
 	double y = (VIEW_RADIUS * sin(angle * (PI / 180))) + VIEW_RADIUS;
-	if (randInt(0,50) == 2)
+	if (randInt(0, max(510 - getLevel() * 10, 200)) == 0)
 	{
-		addActor(new FlameGoodie(x, y, this));
-		return;
+		addActor(new Fungus(x, y, this));
+	}
+	if (randInt(0, max(510 - getLevel() * 10, 250)) == 0)
+	{
+		int rand = randInt(1, 100);
+		if ( rand <= 60)
+		{
+			addActor(new RestoreHealthGoodie(x, y, this));
+			return;
+		}
+		else if ( rand <= 90)
+		{
+			addActor(new FlameGoodie(x, y, this));
+			return;
+		}
+		else 
+		{
+			addActor(new ExtraLifeGoodie(x, y, this));
+			return;
+		}
 	}
 }
 

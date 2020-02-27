@@ -38,10 +38,31 @@ private:
 	int m_score;
 };
 
+class RestoreHealthGoodie : public Goodie
+{
+public:
+	RestoreHealthGoodie(double startX, double startY, StudentWorld* sWorld);
+	virtual void specialAbility();
+};
+
 class FlameGoodie : public Goodie
 {
 public:
 	FlameGoodie(double startX, double startY, StudentWorld* sWorld);
+	virtual void specialAbility();
+};
+
+class Fungus : public Goodie
+{
+public:
+	Fungus(double startX, double startY, StudentWorld* sWorld);
+	virtual void specialAbility();
+};
+
+class ExtraLifeGoodie : public Goodie
+{
+public:
+	ExtraLifeGoodie(double startX, double startY, StudentWorld* sWorld);
 	virtual void specialAbility();
 };
 
@@ -51,7 +72,7 @@ public:
 	DamageableObject(int imageID, double startX, double startY, Direction dir, double size, int depth, StudentWorld* sWorld, double health);
 	int getHealth() const { return m_health; }
 	void takeDamage(double damage) { m_health -= damage; }
-	virtual void restoreHealth(double health) { m_health += health; }
+	virtual void restoreHealth() { m_health = 100; }
 	virtual bool hasHP() { return true; };
 
 private:

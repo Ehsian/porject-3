@@ -33,6 +33,16 @@ Goodie::Goodie(int imageID, double startX, double startY, Direction dir, double 
 	m_lifeTicks = max(randInt(0, 300 - 10 * getWorld()->getLevel() - 1), 50);
 }
 
+RestoreHealthGoodie::RestoreHealthGoodie(double startX, double startY, StudentWorld* sWorld)
+	: Goodie(IID_RESTORE_HEALTH_GOODIE, startX, startY, 0, 1.0, 1, sWorld, 250)
+{}
+
+void RestoreHealthGoodie::specialAbility()
+{
+	getWorld()->increaseScore(getScore());
+	getWorld()->getPlayer()->restoreHealth();
+}
+
 FlameGoodie::FlameGoodie(double startX, double startY, StudentWorld* sWorld)
 	: Goodie(IID_FLAME_THROWER_GOODIE, startX, startY, 0, 1.0, 1, sWorld, 300)
 {}
@@ -41,6 +51,27 @@ void FlameGoodie::specialAbility()
 {
 	getWorld()->increaseScore(getScore());
 	getWorld()->getPlayer()->setFlame(getWorld()->getPlayer()->getFlame() + 5);
+}
+
+Fungus::Fungus(double startX, double startY, StudentWorld* sWorld)
+	: Goodie(IID_FUNGUS, startX, startY, 0, 1.0, 1, sWorld, -50)
+{}
+
+void Fungus::specialAbility()
+{
+	getWorld()->increaseScore(getScore());
+	getWorld()->getPlayer()->takeDamage(20);
+	getWorld()->playSound(SOUND_PLAYER_HURT);
+}
+
+ExtraLifeGoodie::ExtraLifeGoodie(double startX, double startY, StudentWorld* sWorld)
+	: Goodie(IID_EXTRA_LIFE_GOODIE, startX, startY, 0, 1.0, 1, sWorld, 500)
+{}
+
+void ExtraLifeGoodie::specialAbility()
+{
+	getWorld()->increaseScore(getScore());
+	getWorld()->incLives();
 }
 /*void Projectile::checkCollide()
 {
